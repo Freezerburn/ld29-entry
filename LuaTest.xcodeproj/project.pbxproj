@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		E265E8A01909E3430022DBFE /* BallAnimation.png in Resources */ = {isa = PBXBuildFile; fileRef = E265E89F1909E3430022DBFE /* BallAnimation.png */; };
+		E265E8A3190B28E20022DBFE /* components.lua in Resources */ = {isa = PBXBuildFile; fileRef = E265E8A1190B28E20022DBFE /* components.lua */; };
+		E265E8A4190B28E20022DBFE /* entities.lua in Resources */ = {isa = PBXBuildFile; fileRef = E265E8A2190B28E20022DBFE /* entities.lua */; };
 		E291366018F4EB4C0003E3AD /* firedeath.jpg in Resources */ = {isa = PBXBuildFile; fileRef = E291365F18F4EB4C0003E3AD /* firedeath.jpg */; };
 		E2AC016918F8B95A0016876E /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2AC016818F8B95A0016876E /* OpenGL.framework */; };
 		E2AC017118F8D10B0016876E /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2AC016E18F8C9800016876E /* libSDL2.a */; };
@@ -95,6 +97,8 @@
 
 /* Begin PBXFileReference section */
 		E265E89F1909E3430022DBFE /* BallAnimation.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BallAnimation.png; path = assets/BallAnimation.png; sourceTree = "<group>"; };
+		E265E8A1190B28E20022DBFE /* components.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = components.lua; sourceTree = "<group>"; };
+		E265E8A2190B28E20022DBFE /* entities.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = entities.lua; sourceTree = "<group>"; };
 		E291365F18F4EB4C0003E3AD /* firedeath.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = firedeath.jpg; path = assets/firedeath.jpg; sourceTree = "<group>"; };
 		E2AC016818F8B95A0016876E /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		E2AC016E18F8C9800016876E /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libSDL2.a; sourceTree = "<group>"; };
@@ -530,6 +534,8 @@
 		E2E5F71B18F35FC6001418A0 /* lua */ = {
 			isa = PBXGroup;
 			children = (
+				E265E8A1190B28E20022DBFE /* components.lua */,
+				E265E8A2190B28E20022DBFE /* entities.lua */,
 				E2ACADE219018D68009AA3AE /* engine.lua */,
 				E2ACADE319018D68009AA3AE /* log.lua */,
 				E2B2F10B18FDE43F002042F9 /* middleclass.lua */,
@@ -703,8 +709,10 @@
 				E2E5F68318F337AF001418A0 /* InfoPlist.strings in Resources */,
 				E265E8A01909E3430022DBFE /* BallAnimation.png in Resources */,
 				E2E5F71D18F35FC6001418A0 /* main.lua in Resources */,
+				E265E8A3190B28E20022DBFE /* components.lua in Resources */,
 				E2ACADE519018D68009AA3AE /* log.lua in Resources */,
 				E2AC019F18FA12180016876E /* Arial.ttf in Resources */,
+				E265E8A4190B28E20022DBFE /* entities.lua in Resources */,
 				E2E5F69118F337AF001418A0 /* Images.xcassets in Resources */,
 				E2ACADE71902B9CD009AA3AE /* HIragino.otf in Resources */,
 				E2E5F68918F337AF001418A0 /* Credits.rtf in Resources */,

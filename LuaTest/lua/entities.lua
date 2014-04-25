@@ -1,3 +1,4 @@
+local class = require "middleclass"
 local components = require "components"
 
 local engine = require "engine"
