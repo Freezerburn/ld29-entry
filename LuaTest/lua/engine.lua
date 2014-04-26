@@ -277,7 +277,13 @@ end
 function _scene_mt:removeEntity(name)
     -- assert(self._name2ent[name], "Cannot remove an entity that is not in the scene.")
     if self._name2ent[name] then
+        local ent = self._name2ent[name]
         self._name2ent[name] = nil
+
+        local layer = ent.layer
+        if self._layer2ents[layer] then
+            table.remove(self._layer2ents[layer], ent)
+        end
     end
 end
 function _scene_mt:getEntity(name)
