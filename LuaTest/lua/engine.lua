@@ -333,6 +333,8 @@ function _Entity:initialize(name, x, y, w, h, settings)
     self._renderer = engine.renderer
     self:init(settings)
 end
+function _Entity:init(settings)
+end
 function _Entity:kill()
     _currentScene:removeEntity(self.name)
 end
