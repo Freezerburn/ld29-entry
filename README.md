@@ -1,4 +1,4 @@
-ld29-engine
-===========
+ld29-entry
+==========
 
-Simple, dumb engine barely wrapping SDL2 for Ludum Dare 29 competition. (uses Lua/C/C++)
+My entry for Ludum Dare 29 (Beneath the Surface)
