@@ -13,6 +13,7 @@ local renderer = nil
 local font = nil
 local tileSize = 16
 local tileDrawSize = 48
+local wallColor = {r = 255, g = 50, b = 50}
 local gameScene = nil
 
 local engine = require "engine"
@@ -94,6 +95,64 @@ end
 function Player:input(event, pushed)
     self:inputFourWayMovement(event, pushed)
 end
+function Player:collision(between, deltas)
+    local minx = math.huge
+    local miny = math.huge
+    for i, ent in ipairs(between) do
+        if string.find(ent.name, "Wall") then
+            if math.abs(deltas[i].x) < math.abs(minx) then
+                minx = deltas[i].x
+            end
+            if math.abs(deltas[i].y) < math.abs(miny) then
+                miny = deltas[i].y
+            end
+        end
+    end
+    self._rect.x = self._rect.x + minx
+    self._rect.y = self._rect.y + miny
+end
+function Player:getRect()
+    return Rectangle.new(self._rect.x + 15, self._rect.y + 15,
+        self._rect.w - 25, self._rect.h - 25)
+end
+
+local wallsCreated = 0
+Wall = class("Wall", Entity)
+Wall:include(components.ColoredRect)
+function Wall:init(settings)
+    self:initColoredRect(renderer, settings.r, settings.g, settings.b,
+        string.format("Wall{%d,%d,%d}", settings.r, settings.g, settings.b))
+end
+function Wall:render(renderer, dt)
+    self:renderColoredRect(renderer, dt)
+end
+
+Level = class("Level", Entity)
+function Level:init(settings)
+    self._levelMatrix = {}
+    local filename = lfs.packagedir() .. "/" .. settings.filename
+    for line in io.lines(filename) do
+        table.insert(self._levelMatrix, line)
+    end
+
+    for y, line in ipairs(self._levelMatrix) do
+        local x = 1
+        for c in line:gmatch(".") do
+            if c == "#" then
+                getCurrentScene():createEntity("Wall", "Wall" .. wallsCreated,
+                    (x - 1) * tileDrawSize, (y - 1) * tileDrawSize,
+                    tileDrawSize, tileDrawSize,
+                    wallColor)
+                wallsCreated = wallsCreated + 1
+            elseif c == "@" then
+                getCurrentScene():createEntity("Player", "Player",
+                    (x - 1) * tileDrawSize, (y - 1) * tileDrawSize,
+                    tileDrawSize, tileDrawSize)
+            end
+            x = x + 1
+        end
+    end
+end
 
 function main()
     sdl.init(sdl.INIT_EVERYTHING)
@@ -111,7 +170,8 @@ function main()
     gameScene = engine.Scene.new({
         name = "StartScreen",
         init = function(self)
-            self:createEntity("Player", "Player", 50, 50, tileDrawSize, tileDrawSize)
+            -- self:createEntity("Player", "Player", 50, 50, tileDrawSize, tileDrawSize)
+            self:createEntity("Level", "Level", 0, 0, 0, 0, {filename = "test.level"})
             renderer:setDrawColor(255, 255, 255)
         end
     })

@@ -60,20 +60,20 @@ components.ColoredRect = {
         if not texName then
             texName = self.name
         end
-        if not textureCache[texName] then
+        if not engine.getCachedTexture(texName) then
             local surface = sdl.createRGBSurface(1, 1)
             self._color = {r=r, g=g, b=b}
             surface:fillRect(nil, r, g, b)
             self._coloredrectTex = renderer:createTextureFromSurface(surface)
-            textureCache[texName] = self._coloredrectTex
+            engine.cacheTexture(self._coloredrectTex, texName)
         else
-            self._coloredrectTex = textureCache[texName]
+            self._coloredrectTex = engine.getCachedTexture(texName)
         end
     end,
     getColor = function(self)
         return self._color
     end,
-    render = function(self, renderer, dt)
+    renderColoredRect = function(self, renderer, dt)
         renderer:copy(self._coloredrectTex, nil, self._rect)
     end
 }
