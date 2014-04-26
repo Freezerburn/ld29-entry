@@ -13,6 +13,12 @@ local renderer = nil
 local font = nil
 local dialogBubbleFont = nil
 local systemDialogFont = nil
+local npcDialogWidth = 150
+local npcDialogBuffer = 10
+local npcTextBackground = {r = 0, g = 0, b = 0}
+-- local npcTextColor = {r = 255, g = 255, b = 255}
+local npcTextColor = {r = 0, g = 255, b = 255}
+
 local tileSize = 16
 local tileDrawSize = 48
 local wallColor = {r = 255, g = 50, b = 50}
@@ -24,8 +30,9 @@ local playerSpeed = 250
 local useKey = sdl.KEY_E
 local gameScene = nil
 local triggerCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+local timersCreated = 0
 
-local glyphs = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!.,-() "
+local glyphs = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!.,-()'\" "
 local glyphAtlas = {}
 
 local engine = require "engine"
@@ -211,12 +218,13 @@ function Trigger:render(renderer, dt)
     self:renderColoredRect(renderer, dt)
 end
 function Trigger:input(event, pushed)
-    if not getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] and
+    if self._triggerOnUse and
+       not getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] and
        not getCurrentScene().triggeredThisFrame[self._triggerName] then
         if pushed and not event.repeated then
             if string.find(event.name, "KEY") then
                 if event.sym == useKey then
-                    self._triggeredCallback()
+                    self._triggeredCallback(self._rect)
                     getCurrentScene().triggeredThisFrame[self._triggerName] = true
                     if self._triggerOnce then
                         getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] = true
@@ -227,14 +235,15 @@ function Trigger:input(event, pushed)
     end
 end
 function Trigger:collision(between, deltas)
-    if not getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] and
+    if not self._triggerOnUse and
+       not getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] and
        not getCurrentScene().triggeredThisFrame[self._triggerName] then
         local entsColliding = 0
         for i, ent in ipairs(between) do
             entsColliding = entsColliding + 1
             if ent.name:find("Player") then
                 if not self._triggerOnUse then
-                    self._triggeredCallback()
+                    self._triggeredCallback(self._rect)
                     getCurrentScene().triggeredThisFrame[self._triggerName] = true
                     if self._triggerOnce then
                         getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] = true
@@ -248,6 +257,35 @@ function Trigger:collision(between, deltas)
             self._playerIn = false
         end
     end
+end
+
+TextBubble = class("TextBubble", Entity)
+TextBubble:include(components.ColoredRect)
+function TextBubble:init(settings)
+    self._text = settings.text
+    self._backgroundColor = settings.background
+    self._textColor = settings.textColor
+    self._font = settings.font
+    self._rect.h = engine.getLinesHeight(self._font, self._textColor, self._rect.w, self._text)
+    local halfBuffer = settings.buffer / 2
+    self._buffer = settings.buffer
+    self._rect.w = self._rect.w + settings.buffer
+    self._rect.h = self._rect.h + settings.buffer
+    self._rect.x = self._rect.x - halfBuffer - self._rect.w / 2
+    self._rect.y = self._rect.y - halfBuffer - self._rect.h
+    self._textOrigin = {x = self._rect.x + halfBuffer, y = self._rect.y + halfBuffer}
+    self:initColoredRect(self._renderer,
+        self._backgroundColor.r, self._backgroundColor.g, self._backgroundColor.b,
+        string.format("TextBubble{%d,%d,%d}",
+            self._backgroundColor.r, self._backgroundColor.g, self._backgroundColor.b))
+    local this = self
+    getCurrentScene():createEntity("Timer", "Timer" .. timersCreated, 0, 0, 0, 0, 0,
+        {timeout = settings.timeout, callback = function() this:kill() end})
+    timersCreated = timersCreated + 1
+end
+function TextBubble:render(renderer, dt)
+    self:renderColoredRect(renderer, dt)
+    engine.renderLines(self._font, self._textColor, self._textOrigin, self._rect.w - self._buffer, self._text)
 end
 
 Cleanup = class("Cleanup", Entity)
@@ -271,7 +309,7 @@ function main()
     dialogBubbleFont = ttf.openFont("Arial.ttf", 18)
     systemDialogFont = ttf.openFont("Arial.ttf", 26)
     engine.cacheAtlas(font, {r=0, g=0, b=0}, glyphs)
-    engine.cacheAtlas(dialogBubbleFont, {r=0, g=0, b=0}, glyphs)
+    engine.cacheAtlas(dialogBubbleFont, npcTextColor, glyphs)
     engine.cacheAtlas(systemDialogFont, {r=0, g=0, b=0}, glyphs)
 
     gameScene = engine.Scene.new({
@@ -279,9 +317,19 @@ function main()
         init = function(self)
             self.triggersThatHaveBeenTriggered = {}
             self.triggeredThisFrame = {}
+            local this = self
             self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
                 {filename = "test.level",
-                a = {callback = function() log.info("Triggered!") end, once = true}})
+                a = {callback = function(rect) this:createEntity(
+                            "TextBubble", "TestBubble",
+                            rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                            playerLayer + 1,
+                            {text = "Nice weather we're having today.", background = npcTextBackground,
+                            textColor = npcTextColor, font=dialogBubbleFont, buffer = npcDialogBuffer, timeout=2}
+                        )
+                    end,
+                    triggerOnUse = true}
+                })
             renderer:setDrawColor(255, 255, 255)
             self:createEntity("Cleanup", "Cleanup", 0, 0, 0, 0, 100)
         end

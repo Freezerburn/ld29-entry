@@ -1270,8 +1270,20 @@ static void InitMixerBindings(lua_State *L) {
     // TODO: Implement
 }
 
+//static int custom_atpanic(lua_State *L) {
+//    lua_getglobal(L, "debug");
+//    lua_getfield(L, -1, "traceback");
+//    lua_pushvalue(L, 1);
+//    lua_pushinteger(L, 2);
+//    lua_call(L, 2, 1);
+//    const char *traceback = lua_tostring(L, -1);
+//    std::cout << "LUA TRACEBACK:" << std::endl << traceback << std::endl;
+//    return 0;
+//}
+
 int luaload_sdl2(lua_State *L) {
     InitSDLBindings(L);
+//    lua_atpanic(L, custom_atpanic);
     return 1;
 }
 

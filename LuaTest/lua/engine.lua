@@ -282,7 +282,7 @@ function _scene_mt:removeEntity(name)
 
         local layer = ent.layer
         if self._layer2ents[layer] then
-            table.remove(self._layer2ents[layer], ent)
+            self._layer2ents[layer][name] = nil
         end
     end
 end
@@ -423,6 +423,24 @@ function engine.destroyAtlas(font, color)
         metaGlyphAtlas[atlasString] = nil
     end
 end
+function engine.getLinesHeight(font, color, width, text)
+    local renderer = engine.renderer
+    local atlasString = string.format("%s_{%d,%d,%d}", tostring(font), color.r, color.g, color.b)
+    local atlas = metaGlyphAtlas[atlasString]
+    local curWidth = 0
+    local lineSkip = font:lineSkip()
+    local totalHeight = lineSkip
+    for c in text:gmatch(".") do
+        local advance = atlas[c].advance
+
+        curWidth = curWidth + advance
+        if curWidth > width then
+            curWidth = 0
+            totalHeight = totalHeight + lineSkip
+        end
+    end
+    return totalHeight
+end
 function engine.renderLines(font, color, loc, width, text)
     local renderer = engine.renderer
     local atlasString = string.format("%s_{%d,%d,%d}", tostring(font), color.r, color.g, color.b)
@@ -441,7 +459,7 @@ function engine.renderLines(font, color, loc, width, text)
         local maxy = atlas[c].maxy
         local advance = atlas[c].advance
         local glyphWidth = maxx - minx
-        local dest = _Rectangle.new(x + minx, y + ascent, glyphWidth, glyphHeight)
+        local dest = _Rectangle.new(x + minx, y, glyphWidth, glyphHeight)
         renderer:copy(atlas[c].texture, nil, dest)
 
         x = x + advance
