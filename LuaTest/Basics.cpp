@@ -477,6 +477,23 @@ static int sdl_wrap_renderer_setdrawcolor(lua_State *L) {
     return 0;
 }
 
+static int sdl_wrap_renderer_setrendertarget(lua_State *L) {
+    SDL_Renderer *renderer = checkrenderer(L, 1);
+    if(lua_gettop(L) == 1 || lua_isnil(L, 2)) {
+        SDL_SetRenderTarget(renderer, NULL);
+    }
+    else {
+        SDL_Texture *texture = checktexture(L, 2);
+        int err = SDL_SetRenderTarget(renderer, texture);
+        if(err < 0) {
+            std::stringstream ss;
+            ss << "SDL_Renderer:setRenderTarget: ERROR calling SDL_SetRenderTarget: " << SDL_GetError();
+            luaL_error(L, ss.str().c_str());
+        }
+    }
+    return 0;
+}
+
 static int renderer_gc_meta(lua_State *L) {
     SDL_Renderer *renderer = checkrenderer(L, 1);
     if(NULL != renderer) {
@@ -491,6 +508,7 @@ static const struct luaL_Reg sdl_rendererlib [] = {
     {"copy", sdl_wrap_render_copy},
     {"present", sdl_wrap_renderer_present},
     {"setDrawColor", sdl_wrap_renderer_setdrawcolor},
+    {"setRenderTarget", sdl_wrap_renderer_setrendertarget},
 
     {"__gc", renderer_gc_meta},
 

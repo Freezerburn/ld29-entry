@@ -9,7 +9,7 @@ local getCurrentScene = engine.getCurrentScene
 
 local entities = {}
 
-local SimpleParticle = class("SimpleParticle", Entity)
+SimpleParticle = class("SimpleParticle", Entity)
 SimpleParticle:include(components.ColoredRect)
 SimpleParticle:include(components.RandomVelocityMixin)
 function SimpleParticle:init(settings)
@@ -28,7 +28,7 @@ function SimpleParticle:tick(dt)
 end
 entities.SimpleParticle = SimpleParticle
 
-local TextButton = class("TextButton", Entity)
+TextButton = class("TextButton", Entity)
 function TextButton:init(settings)
     self._buttonFont = settings.font
     self._buttonText = settings.text
@@ -40,14 +40,19 @@ function TextButton:init(settings)
     local backgroundColor = settings.background
     local textColor = settings.textColor
     local w, h = settings.font:sizeUTF8(settings.text)
+    self._rect.w, self._rect.h = w, h
+
+    local renderer = self._renderer
     local baseSurface = sdl.createRGBSurface(w, h)
     baseSurface:fillRect(nil, backgroundColor.r, backgroundColor.b, backgroundColor.g)
-    local textSurface = settings.font:renderUTF8Blended(settings.text, settings.r, settings.g, settings.b)
-    baseSurface:blit(textSurface)
-    self._buttonTex = renderer:createTextureFromSurface(baseSurface)
+    self._baseTexture = renderer:createTextureFromSurface(baseSurface)
+
+    local textSurface = settings.font:renderUTF8Blended(settings.text, textColor.r, textColor.g, textColor.b)
+    self._textTexture = renderer:createTextureFromSurface(textSurface)
 end
 function TextButton:render(renderer, dt)
-    renderer:copy(self._buttonTex, nil, self._rect)
+    renderer:copy(self._baseTexture, nil, self._rect)
+    renderer:copy(self._textTexture, nil, self._rect)
 end
 function TextButton:input(event, pushed)
     if event.name == "MOUSEMOTION" then
@@ -60,7 +65,7 @@ function TextButton:input(event, pushed)
             end
         else
             if not self._rect:isPointIn(event) then
-                self._mouse = false
+                self._mouseEntered = false
                 if self._leftCallback then
                     self._leftCallback()
                 end
@@ -74,7 +79,7 @@ function TextButton:input(event, pushed)
 end
 entities.TextButton = TextButton
 
-local Text = class("Text", Entity)
+Text = class("Text", Entity)
 function Text:init(settings)
     local surface = splashFont:renderUTF8Blended(settings.text, 255, 255, 255)
     self._textTex = renderer:createTextureFromSurface(surface)
@@ -89,7 +94,7 @@ function Text:render(renderer, dt)
 end
 entities.Text = Text
 
-local Timer = class("Timer", Entity)
+Timer = class("Timer", Entity)
 function Timer:init(settings)
     self._timeoutAt = settings.timeout
     self._callback = settings.callback

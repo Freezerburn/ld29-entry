@@ -10,6 +10,7 @@ local _tickTime = 1 / 60
 local window = nil
 local renderer = nil
 
+local font = nil
 local startMenuScene = nil
 
 local engine = require "engine"
@@ -34,6 +35,8 @@ function main()
         _width, _height,
         _windowFlags)
     renderer = sdl.createRenderer(window, -1, _renderFlags)
+
+    font = ttf.openFont("Arial.ttf", 42)
 
     startMenuScene = engine.Scene.new({
         name = "StartScreen",
