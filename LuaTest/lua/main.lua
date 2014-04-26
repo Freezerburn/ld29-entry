@@ -101,6 +101,15 @@ function Player:input(event, pushed)
     self:inputFourWayMovement(event, pushed)
 end
 function Player:collision(between, deltas)
+    -- TODO: Fix player getting "caught" on the edge of a tile as the player pressed
+    -- into the tile while also simultaneously moving along the tile.
+    -- e.g.: Pressing left and up when against the left wall. Eventually the player
+    -- will get "wedged" because when the collision happens, they are slightly in
+    -- one tile pushing them out in the X direction, and on the border of another tile
+    -- which is pushing them out in the Y direction. Not sure what the fix would be,
+    -- so I'm going to leave it alone to work on other things instead of obsessing
+    -- over slightly-imperfect collision detection which won't actually affect
+    -- gameplay.
     local minx = math.huge
     local miny = math.huge
     for i, ent in ipairs(between) do
@@ -136,8 +145,11 @@ function Wall:render(renderer, dt)
     self:renderColoredRect(renderer, dt)
 end
 
+local numCreatedTriggers = 0
+local triggersThatHaveBeenTriggered = {}
 Level = class("Level", Entity)
 function Level:init(settings)
+    local triggerCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     self._levelMatrix = {}
     local filename = lfs.packagedir() .. "/" .. settings.filename
     for line in io.lines(filename) do
@@ -156,9 +168,44 @@ function Level:init(settings)
             elseif c == "@" then
                 getCurrentScene():createEntity("Player", "Player",
                     (x - 1) * tileDrawSize, (y - 1) * tileDrawSize,
-                    tileDrawSize, tileDrawSize)
+                    tileDrawSize, tileDrawSize, playerLayer)
+            elseif triggerCharacters:find(c) then
+                if settings[c] then
+                    getCurrentScene():createEntity("Trigger", "Trigger" .. numCreatedTriggers,
+                        (x - 1) * tileDrawSize, (y - 1) * tileDrawSize,
+                        tileDrawSize, tileDrawSize, triggerLayer,
+                        {callback = settings[c],
+                        name = c,
+                        once = true})
+                    numCreatedTriggers = numCreatedTriggers + 1
+                end
             end
             x = x + 1
+        end
+    end
+end
+
+Trigger = class("Trigger", Entity)
+Trigger:include(components.ColoredRect)
+function Trigger:init(settings)
+    self._triggeredCallback = settings.callback
+    self._triggerOnce = settings.once
+    self._triggerName = settings.name
+    self._triggered = false
+    self:initColoredRect(renderer, 200, 200, 0, string.format("Trigger{%d,%d,%d}", 200, 200, 0))
+end
+function Trigger:render(renderer, dt)
+    self:renderColoredRect(renderer, dt)
+end
+function Trigger:collision(between, deltas)
+    if not triggersThatHaveBeenTriggered[self._triggerName] then
+        for i, ent in ipairs(between) do
+            if ent.name:find("Player") then
+                self._triggeredCallback()
+                if self._triggerOnce then
+                    triggersThatHaveBeenTriggered[self._triggerName] = true
+                end
+            end
         end
     end
 end
