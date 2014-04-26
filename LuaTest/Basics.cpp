@@ -1109,6 +1109,85 @@ static int wrap_ttf_font_renderutf8blended(lua_State *L) {
     return 1;
 }
 
+static int wrap_ttf_font_renderglyphblended(lua_State *L) {
+    int numargs = lua_gettop(L);
+    if(numargs < 5) {
+        luaL_error(L, "TTF_Font:renderGlyphBlended: Requires a string and r, g, b colors.");
+        return 0;
+    }
+
+    TTF_Font *font = checkfont(L, 1);
+    const char *glyph = luaL_checkstring(L, 2);
+    int r = luaL_checkint(L, 3);
+    int g = luaL_checkint(L, 4);
+    int b = luaL_checkint(L, 5);
+    SDL_Color color;
+    color.r = r;
+    color.g = g;
+    color.b = b;
+    SDL_Surface **surface = (SDL_Surface **)lua_newuserdata(L, sizeof(SDL_Surface *));
+    *surface = TTF_RenderGlyph_Blended(font, *glyph, color);
+    if(NULL == *surface) {
+        std::stringstream ss;
+        ss << "TTF_Font:renderUTF8Solid: ERROR calling TTF_RenderGlyph_Blended: " << TTF_GetError();
+        luaL_error(L, ss.str().c_str());
+        return 0;
+    }
+
+    luaL_getmetatable(L, SURFACE_METATABLE);
+    lua_setmetatable(L, -2);
+
+    return 1;
+}
+
+static int wrap_ttf_font_getglyphmetrics(lua_State *L) {
+    TTF_Font *font = checkfont(L, 1);
+    const char *glyph = luaL_checkstring(L, 2);
+    int minx, miny, maxx, maxy, advance;
+    int err = TTF_GlyphMetrics(font, *glyph, &minx, &maxx, &miny, &maxy, &advance);
+    if(err < 0) {
+        std::stringstream ss;
+        ss << "TTF_Font:getGlyphMetrics: ERROR calling TTF_GlyphMetrics: " << TTF_GetError();
+        luaL_error(L, ss.str().c_str());
+        return 0;
+    }
+
+    lua_pushinteger(L, minx);
+    lua_pushinteger(L, maxx);
+    lua_pushinteger(L, miny);
+    lua_pushinteger(L, maxy);
+    lua_pushinteger(L, advance);
+    return 5;
+}
+
+static int wrap_ttf_font_ascent(lua_State *L) {
+    TTF_Font *font = checkfont(L, 1);
+    int ascent = TTF_FontAscent(font);
+    lua_pushinteger(L, ascent);
+    return 1;
+}
+
+static int wrap_ttf_font_descent(lua_State *L) {
+    TTF_Font *font = checkfont(L, 1);
+    int descent = TTF_FontDescent(font);
+    lua_pushinteger(L, descent);
+    return 1;
+}
+
+static int wrap_ttf_font_height(lua_State *L) {
+    TTF_Font *font = checkfont(L, 1);
+    int height = TTF_FontHeight(font);
+    lua_pushinteger(L, height);
+    return 1;
+}
+
+static int wrap_ttf_font_lineskip(lua_State *L) {
+    TTF_Font *font = checkfont(L, 1);
+    int lineSkip = TTF_FontLineSkip(font);
+    lua_pushinteger(L, lineSkip);
+    return 1;
+}
+
 static int font_gc_meta(lua_State *L) {
     TTF_Font *font = checkfont(L, 1);
     if(NULL != font) {
@@ -1120,9 +1199,17 @@ static int font_gc_meta(lua_State *L) {
 static const struct luaL_Reg ttffontlib [] {
     {"sizeText", wrap_ttf_font_sizetext},
     {"sizeUTF8", wrap_ttf_font_sizeutf8},
+    
     {"renderTextSolid", wrap_ttf_font_rendertextsolid},
     {"renderTextBlended", wrap_ttf_font_rendertextblended},
     {"renderUTF8Blended", wrap_ttf_font_renderutf8blended},
+    {"renderGlyphBlended", wrap_ttf_font_renderglyphblended},
+
+    {"glyphMetrics", wrap_ttf_font_getglyphmetrics},
+    {"ascent", wrap_ttf_font_ascent},
+    {"descent", wrap_ttf_font_descent},
+    {"height", wrap_ttf_font_height},
+    {"lineSkip", wrap_ttf_font_lineskip},
 
     {"__gc", font_gc_meta},
 
