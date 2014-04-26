@@ -29,7 +29,7 @@ function main()
     ttf.init()
     img.init(bit32.bor(img.INIT_JPG, img.INIT_PNG))
 
-    window = sdl.createWindow("Pong!",
+    window = sdl.createWindow("LD29!",
         sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
         _width, _height,
         _windowFlags)

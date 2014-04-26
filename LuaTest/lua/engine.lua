@@ -318,6 +318,7 @@ function _Entity:initialize(name, x, y, w, h, settings)
     self._rect = engine.Rectangle.new(x, y, w, h)
     self._vel = engine.Vector.new()
     self._accel = engine.Vector.new()
+    self._renderer = engine.renderer
     self:init(settings)
 end
 function _Entity:kill()
@@ -358,6 +359,18 @@ end
 
 local going = true
 local frame = 0
+local textureCache = {}
+function engine.cacheTexture(tex, name)
+    textureCache[name] = tex
+end
+function engine.removeTexture(name)
+    if textureCache[name] then
+        textureCache[name] = nil
+    end
+end
+function engine.getCachedTexture(name)
+    return textureCache[name]
+end
 function engine.quit()
     going = false
 end

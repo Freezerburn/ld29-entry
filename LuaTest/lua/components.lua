@@ -1,4 +1,10 @@
 local components = {}
+local engine = require "engine"
+
+local Entity = engine.Entity
+local Vector = engine.Vector
+local Rectangle = engine.Rectangle
+local getCurrentScene = engine.getCurrentScene
 
 components.RandomVelocityMixin = {
     getRandomVelocity = function(self, totalVelocity, constrainX, constraint)
@@ -224,55 +230,82 @@ components.FollowPosition = {
 }
 components.Animated = {
     initAnimation = function(self, settings)
+        self._animations = {}
+    end,
+    addAnimation = function(self, settings)
+        local renderer = self._renderer
+        local animationInfos = {}
         if settings.filename then
-            local surface = img.load(settings.filename)
-            self._animatedTex = renderer:createTextureFromSurface(surface)
+            local cached = engine.getCachedTexture(settings.filename)
+            if cached then
+                animationInfos.animatedTex = cached
+            else
+                local surface = img.load(settings.filename)
+                animationInfos.animatedTex = renderer:createTextureFromSurface(surface)
+                engine.cacheTexture(animationInfos.animatedTex, settings.filename)
+            end
         elseif settings.texture then
-            self._animatedTex = settings.texture
+            animationInfos.animatedTex = settings.texture
         end
-        self._currentFrame = 1
-        self._frames = settings.frames
-        self._tileWidth = settings.width
-        self._tileHeight = settings.height
-        self._srcRects = {}
+        animationInfos.currentFrame = 1
+        animationInfos.frames = settings.frames
+        animationInfos.tileWidth = settings.width
+        animationInfos.tileHeight = settings.height
+        animationInfos.srcRects = {}
         local startx = settings.start.x
         local starty = settings.start.y
         for i = 0, settings.frames - 1 do
-            table.insert(self._srcRects, Rectangle.new(startx + i * self._tileWidth, starty,
-                self._tileWidth, self._tileHeight))
+            table.insert(animationInfos.srcRects, Rectangle.new(startx + i * animationInfos.tileWidth, starty,
+                animationInfos.tileWidth, animationInfos.tileHeight))
         end
 
-        self._animationTime = settings.animationTime
-        if type(settings.animationTime) == "table" and self._frames > 1 then
-            self._currentTiming = 1
-            self._differentTimings = true
+        animationInfos.animationTime = settings.animationTime
+        if type(settings.animationTime) == "table" and animationInfos.frames > 1 then
+            animationInfos.currentTiming = 1
+            animationInfos.differentTimings = true
         else
-            self._differentTimings = false
+            animationInfos.differentTimings = false
         end
-        self._currentTime = 0
+        animationInfos.currentTime = 0
+        self._animations[settings.name] = animationInfos
+    end,
+    setAnimation = function(self, name)
+        self._currentAnimation = name
+        local animationInfos = self._animations[name]
+        animationInfos.currentTime = 0
+        animationInfos.currentFrame = 1
+        animationInfos.currentTiming = 1
     end,
     renderAnimation = function(self, renderer, dt)
-        renderer:copy(self._animatedTex, self._srcRects[self._currentFrame], self._rect)
+        if self._currentAnimation then
+            local animationInfos = self._animations[self._currentAnimation]
+            renderer:copy(animationInfos.animatedTex,
+                animationInfos.srcRects[animationInfos.currentFrame],
+                self._rect)
+        end
     end,
     tickAnimation = function(self, dt)
-        self._currentTime = self._currentTime + dt
-        if self._differentTimings then
-            local timing = self._animationTime[self._currentTiming]
-            if self._currentTime > timing then
-                self._currentTime = self._currentTime - timing
-                self._currentTiming = self._currentTiming + 1
-                self._currentFrame = self._currentFrame + 1
-                if self._currentFrame > self._frames then
-                    self._currentFrame = 1
-                    self._currentTiming = 1
+        if self._currentAnimation then
+            local animationInfos = self._animations[self._currentAnimation]
+            animationInfos.currentTime = animationInfos.currentTime + dt
+            if animationInfos.differentTimings then
+                local timing = animationInfos.animationTime[self._currentTiming]
+                if animationInfos.currentTime > timing then
+                    animationInfos.currentTime = animationInfos.currentTime - timing
+                    animationInfos.currentTiming = animationInfos.currentTiming + 1
+                    animationInfos.currentFrame = animationInfos.currentFrame + 1
+                    if animationInfos.currentFrame > animationInfos.frames then
+                        animationInfos.currentFrame = 1
+                        animationInfos.currentTiming = 1
+                    end
                 end
-            end
-        else
-            if self._currentTime > self._animationTime then
-                self._currentTime = self._currentTime - self._animationTime
-                self._currentFrame = self._currentFrame + 1
-                if self._currentFrame > self._frames then
-                    self._currentFrame = 1
+            else
+                if animationInfos.currentTime > animationInfos.animationTime then
+                    animationInfos.currentTime = animationInfos.currentTime - animationInfos.animationTime
+                    animationInfos.currentFrame = animationInfos.currentFrame + 1
+                    if animationInfos.currentFrame > animationInfos.frames then
+                        animationInfos.currentFrame = 1
+                    end
                 end
             end
         end
