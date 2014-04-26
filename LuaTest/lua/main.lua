@@ -232,7 +232,7 @@ function Trigger:collision(between, deltas)
                     self._triggeredCallback()
                     getCurrentScene().triggeredThisFrame[self._triggerName] = true
                     if self._triggerOnce then
-                        triggersThatHaveBeenTriggered[self._triggerName] = true
+                        getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] = true
                     end
                 else
                     self._playerIn = true
@@ -270,7 +270,7 @@ function main()
             self.triggeredThisFrame = {}
             self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
                 {filename = "test.level",
-                a = {callback = function() log.info("Triggered!") end, triggerOnUse = true}})
+                a = {callback = function() log.info("Triggered!") end, once = true}})
             renderer:setDrawColor(255, 255, 255)
             self:createEntity("Cleanup", "Cleanup", 0, 0, 0, 0, 100)
         end
