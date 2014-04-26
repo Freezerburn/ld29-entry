@@ -19,6 +19,7 @@ local wallLayer = 5
 local triggerLayer = 6
 local playerLayer = 10
 local playerSpeed = 250
+local useKey = sdl.KEY_E
 local gameScene = nil
 
 local engine = require "engine"
@@ -146,7 +147,6 @@ function Wall:render(renderer, dt)
 end
 
 local numCreatedTriggers = 0
-local triggersThatHaveBeenTriggered = {}
 Level = class("Level", Entity)
 function Level:init(settings)
     local triggerCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -171,12 +171,18 @@ function Level:init(settings)
                     tileDrawSize, tileDrawSize, playerLayer)
             elseif triggerCharacters:find(c) then
                 if settings[c] then
+                    local triggerSettings = {callback = settings[c].callback,
+                        name = c}
+                    if settings[c].once then
+                        triggerSettings.once = settings[c].once
+                    end
+                    if settings[c].triggerOnUse then
+                        triggerSettings.onUse = settings[c].triggerOnUse
+                    end
                     getCurrentScene():createEntity("Trigger", "Trigger" .. numCreatedTriggers,
                         (x - 1) * tileDrawSize, (y - 1) * tileDrawSize,
                         tileDrawSize, tileDrawSize, triggerLayer,
-                        {callback = settings[c],
-                        name = c,
-                        once = true})
+                        triggerSettings)
                     numCreatedTriggers = numCreatedTriggers + 1
                 end
             end
@@ -189,25 +195,59 @@ Trigger = class("Trigger", Entity)
 Trigger:include(components.ColoredRect)
 function Trigger:init(settings)
     self._triggeredCallback = settings.callback
+    self._triggerOnUse = settings.onUse
     self._triggerOnce = settings.once
     self._triggerName = settings.name
     self._triggered = false
+    self._playerIn = false
     self:initColoredRect(renderer, 200, 200, 0, string.format("Trigger{%d,%d,%d}", 200, 200, 0))
 end
 function Trigger:render(renderer, dt)
     self:renderColoredRect(renderer, dt)
 end
-function Trigger:collision(between, deltas)
-    if not triggersThatHaveBeenTriggered[self._triggerName] then
-        for i, ent in ipairs(between) do
-            if ent.name:find("Player") then
-                self._triggeredCallback()
-                if self._triggerOnce then
-                    triggersThatHaveBeenTriggered[self._triggerName] = true
+function Trigger:input(event, pushed)
+    if not getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] and
+       not getCurrentScene().triggeredThisFrame[self._triggerName] then
+        if pushed and not event.repeated then
+            if string.find(event.name, "KEY") then
+                if event.sym == useKey then
+                    self._triggeredCallback()
+                    getCurrentScene().triggeredThisFrame[self._triggerName] = true
+                    if self._triggerOnce then
+                        triggersThatHaveBeenTriggered[self._triggerName] = true
+                    end
                 end
             end
         end
     end
+end
+function Trigger:collision(between, deltas)
+    if not getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] and
+       not getCurrentScene().triggeredThisFrame[self._triggerName] then
+        local entsColliding = 0
+        for i, ent in ipairs(between) do
+            entsColliding = entsColliding + 1
+            if ent.name:find("Player") then
+                if not self._triggerOnUse then
+                    self._triggeredCallback()
+                    getCurrentScene().triggeredThisFrame[self._triggerName] = true
+                    if self._triggerOnce then
+                        triggersThatHaveBeenTriggered[self._triggerName] = true
+                    end
+                else
+                    self._playerIn = true
+                end
+            end
+        end
+        if entsColliding == 0 and self._playerIn then
+            self._playerIn = false
+        end
+    end
+end
+
+Cleanup = class("Cleanup", Entity)
+function Cleanup:render()
+    getCurrentScene().triggeredThisFrame = {}
 end
 
 function main()
@@ -226,10 +266,13 @@ function main()
     gameScene = engine.Scene.new({
         name = "StartScreen",
         init = function(self)
+            self.triggersThatHaveBeenTriggered = {}
+            self.triggeredThisFrame = {}
             self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
                 {filename = "test.level",
-                a = function() log.info("Triggered!") end})
+                a = {callback = function() log.info("Triggered!") end, triggerOnUse = true}})
             renderer:setDrawColor(255, 255, 255)
+            self:createEntity("Cleanup", "Cleanup", 0, 0, 0, 0, 100)
         end
     })
     engine.Scene.swap(gameScene)
