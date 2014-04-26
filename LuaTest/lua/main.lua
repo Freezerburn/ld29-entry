@@ -14,6 +14,7 @@ local font = nil
 local tileSize = 16
 local tileDrawSize = 48
 local wallColor = {r = 255, g = 50, b = 50}
+local playerSpeed = 250
 local gameScene = nil
 
 local engine = require "engine"
@@ -81,7 +82,7 @@ function Player:init(settings)
     self:initFourWayMovement({
         keys = {left = sdl.KEY_A, right = sdl.KEY_D, up = sdl.KEY_W, down = sdl.KEY_S},
         names = {left = "walkLeft", right = "walkRight", up = "walkUp", down = "walkDown", idle = "idle"},
-        speed = {x = 100, y = 100}
+        speed = {x = playerSpeed, y = playerSpeed}
     })
 end
 function Player:render(renderer, dt)
@@ -100,16 +101,20 @@ function Player:collision(between, deltas)
     local miny = math.huge
     for i, ent in ipairs(between) do
         if string.find(ent.name, "Wall") then
-            if math.abs(deltas[i].x) < math.abs(minx) then
+            if deltas[i].x ~= 0 and math.abs(deltas[i].x) < math.abs(minx) then
                 minx = deltas[i].x
             end
-            if math.abs(deltas[i].y) < math.abs(miny) then
+            if deltas[i].y ~= 0 and math.abs(deltas[i].y) < math.abs(miny) then
                 miny = deltas[i].y
             end
         end
     end
-    self._rect.x = self._rect.x + minx
-    self._rect.y = self._rect.y + miny
+    if minx ~= math.huge then
+        self._rect.x = self._rect.x + minx
+    end
+    if miny ~= math.huge then
+        self._rect.y = self._rect.y + miny
+    end
 end
 function Player:getRect()
     return Rectangle.new(self._rect.x + 15, self._rect.y + 15,
