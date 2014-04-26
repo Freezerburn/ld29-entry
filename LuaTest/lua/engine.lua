@@ -92,7 +92,8 @@ function findCollisions(ents)
     local normals = {}
 
     for _, ent in pairs(ents) do
-        if not ent.name:find("Particle") then
+        -- if not ent.name:find("Particle") then
+        if ent.name == "Player" or string.find(ent.name, "Trigger") then
             for _, ent2 in pairs(ents) do
                 if ent ~= ent2 and not ent2.name:find("Particle") then
                     local collided = aabbCollision(ent:getRect(), ent2:getRect(), normal)
