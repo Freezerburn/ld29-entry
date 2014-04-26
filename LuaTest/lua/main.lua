@@ -320,15 +320,19 @@ function main()
             local this = self
             self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
                 {filename = "test.level",
-                a = {callback = function(rect) this:createEntity(
-                            "TextBubble", "TestBubble",
-                            rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
-                            playerLayer + 1,
-                            {text = "Nice weather we're having today.", background = npcTextBackground,
-                            textColor = npcTextColor, font=dialogBubbleFont, buffer = npcDialogBuffer, timeout=2}
-                        )
+                a = {callback = function(rect)
+                                    if not this:getEntity("TestBubble") then
+                                        this:createEntity(
+                                            "TextBubble", "TestBubble",
+                                            rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                                            playerLayer + 1,
+                                            {text = "Nice weather we're having today.", background = npcTextBackground,
+                                            textColor = npcTextColor, font=dialogBubbleFont, buffer = npcDialogBuffer, timeout=2}
+                                            )
+                                    end
                     end,
-                    triggerOnUse = true}
+                    triggerOnUse = true,
+                    solid = true}
                 })
             renderer:setDrawColor(255, 255, 255)
             self:createEntity("Cleanup", "Cleanup", 0, 0, 0, 0, 100)
