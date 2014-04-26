@@ -294,7 +294,9 @@ function _scene_mt:tick(dt)
     for name, ent in pairs(self._name2ent) do
         ent:tick(dt)
     end
+    -- local before = sdl.getTicks()
     findCollisions(self._name2ent)
+    -- print(string.format("findCollisions took %dms", sdl.getTicks() - before))
 end
 function _scene_mt:input(event, pushed)
     for _, ent in pairs(self._name2ent) do
