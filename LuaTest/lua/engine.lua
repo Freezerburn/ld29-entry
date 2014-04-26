@@ -429,9 +429,9 @@ function engine.startGameLoop(renderer, dt)
         while needgc and delta < 12 do
             -- local beforegc = sdl.getTicks()
             local finished = collectgarbage("step", 1)
-            didgc = true
             -- gctime = gctime + (sdl.getTicks() - beforegc)
             if finished then
+                didgc = true
                 break
             end
             -- delta = sdl.getTicks() - before
