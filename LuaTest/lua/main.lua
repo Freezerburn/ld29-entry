@@ -38,6 +38,7 @@ local useKey = sdl.KEY_E
 local gameScene = nil
 local triggerCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 local timersCreated = 0
+local levelSize = {w = 0, h = 0}
 
 local glyphs = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!.,-()'\" "
 local glyphAtlas = {}
@@ -171,10 +172,16 @@ local numCreatedTriggers = 0
 Level = class("Level", Entity)
 function Level:init(settings)
     self._levelMatrix = {}
+    local maxLineSize = 0
     local filename = lfs.packagedir() .. "/" .. settings.filename
     for line in io.lines(filename) do
         table.insert(self._levelMatrix, line)
+        if #line > maxLineSize then
+            maxLineSize = #line
+        end
     end
+    self._levelWidth, self._levelHeight = maxLineSize * tileDrawSize, #self._levelMatrix * tileDrawSize
+    self:setLimits()
 
     for y, line in ipairs(self._levelMatrix) do
         local x = 1
@@ -212,6 +219,11 @@ function Level:init(settings)
             x = x + 1
         end
     end
+end
+function Level:setLimits()
+    levelSize.w, levelSize.h = self._levelWidth, self._levelHeight
+    camera.setLimit(true)
+    camera.setLimits({x = 0, y = 0, w = levelSize.w, h = levelSize.h})
 end
 
 Trigger = class("Trigger", Entity)
@@ -387,6 +399,12 @@ function main()
                 })
             renderer:setDrawColor(255, 255, 255)
             self:createEntity("Cleanup", "Cleanup", 0, 0, 0, 0, 100)
+        end,
+        show = function(self)
+            local level = self:getEntity("Level")
+            if level then
+                level:setLimits()
+            end
         end
     })
     engine.Scene.swap(gameScene)

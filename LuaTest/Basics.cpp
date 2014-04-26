@@ -42,6 +42,10 @@ static int amask = 0xff000000;
 #endif
 
 static float currentx = 0, currenty = 0;
+static bool limitCameraToBounds = false;
+static float cameraBoundMinx = 0, cameraBoundMiny = 0;
+static float cameraBoundMaxx = 0, cameraBoundMaxy = 0;
+static int screenWidth = 0, screenHeight = 0;
 
 static std::string convertToUpper(std::string str) {
     for(int i = 0; i < str.length(); i++) {
@@ -218,6 +222,8 @@ static int wrap_sdl_createwindow(lua_State *L) {
     int windowPosY = luaL_checkint(L, 3);
     int windowWidth = luaL_checkint(L, 4);
     int windowHeight = luaL_checkint(L, 5);
+    screenWidth = windowWidth;
+    screenHeight = windowHeight;
     int flags = luaL_checkint(L, 6);
 
     SDL_Window **window = (SDL_Window **)lua_newuserdata(L, sizeof(SDL_Window *));
@@ -1338,6 +1344,26 @@ static int wrap_movecamera(lua_State *L) {
     float dy = luaL_checknumber(L, 2);
     currentx += dx;
     currenty += dy;
+    if(limitCameraToBounds) {
+//        std::cout << "currentx = " << currentx << std::endl;
+//        std::cout << "currenty = " << currenty << std::endl;
+//        std::cout << "screenWidth = " << (screenWidth) << std::endl;
+//        std::cout << "screenHeight = " << (screenHeight) << std::endl;
+        if(screenWidth - currentx > cameraBoundMaxx) {
+//            std::cout << "currentx = cameraBoundMaxx(" << cameraBoundMaxx << ") - screenWidth(" << screenWidth << ")" << std::endl;
+            currentx += (screenWidth - currentx) - cameraBoundMaxx;
+        }
+        else if(-currentx < cameraBoundMinx) {
+//            std::cout << "currentx = cameraBoundMinx(" << cameraBoundMinx << ")" << std::endl;
+            currentx = cameraBoundMinx;
+        }
+        if(screenHeight - currenty > cameraBoundMaxy) {
+            currenty += (screenHeight - currenty) - cameraBoundMaxy;
+        }
+        else if(-currenty < cameraBoundMiny) {
+            currenty = cameraBoundMiny;
+        }
+    }
     return 0;
 }
 
@@ -1346,6 +1372,26 @@ static int wrap_setcamera(lua_State *L) {
     float y = luaL_checknumber(L, 2);
     currentx = x;
     currenty = y;
+    if(limitCameraToBounds) {
+//        std::cout << "currentx = " << currentx << std::endl;
+//        std::cout << "currenty = " << currenty << std::endl;
+//        std::cout << "screenWidth = " << (screenWidth) << std::endl;
+//        std::cout << "screenHeight = " << (screenHeight) << std::endl;
+        if(screenWidth - currentx > cameraBoundMaxx) {
+//            std::cout << "currentx = cameraBoundMaxx(" << cameraBoundMaxx << ") - screenWidth(" << screenWidth << ")" << std::endl;
+            currentx += (screenWidth - currentx) - cameraBoundMaxx;
+        }
+        else if(-currentx < cameraBoundMinx) {
+//            std::cout << "currentx = cameraBoundMinx(" << cameraBoundMinx << ")" << std::endl;
+            currentx = cameraBoundMinx;
+        }
+        if(screenHeight - currenty > cameraBoundMaxy) {
+            currenty += (screenHeight - currenty) - cameraBoundMaxy;
+        }
+        else if(-currenty < cameraBoundMiny) {
+            currenty = cameraBoundMiny;
+        }
+    }
     return 0;
 }
 
@@ -1355,10 +1401,63 @@ static int wrap_getcameracoords(lua_State *L) {
     return 2;
 }
 
+static int wrap_setlimitcamera(lua_State *L) {
+    limitCameraToBounds = lua_toboolean(L, 1);
+    return 0;
+}
+
+static int wrap_getlimitcamera(lua_State *L) {
+    lua_pushboolean(L, limitCameraToBounds);
+    return 1;
+}
+
+static int wrap_setcameralimits(lua_State *L) {
+    luaL_checktype(L, 1, LUA_TTABLE);
+
+    lua_getfield(L, 1, "x");
+    lua_getfield(L, 1, "y");
+    lua_getfield(L, 1, "w");
+    lua_getfield(L, 1, "h");
+
+    float height = lua_tonumber(L, -1);
+    float width = lua_tonumber(L, -2);
+    float y = lua_tonumber(L, -3);
+    float x = lua_tonumber(L, -4);
+    cameraBoundMinx = x;
+    cameraBoundMiny = y;
+    cameraBoundMaxx = x + width;
+    cameraBoundMaxy = y + height;
+//    std::cout << "cameraBoundMinx = " << cameraBoundMinx << std::endl;
+//    std::cout << "cameraBoundMiny = " << cameraBoundMiny << std::endl;
+//    std::cout << "cameraBoundMaxx = " << cameraBoundMaxx << std::endl;
+//    std::cout << "cameraBoundMaxy = " << cameraBoundMaxy << std::endl;
+
+    return 0;
+}
+
+static int wrap_getcameralimits(lua_State *L) {
+    lua_createtable(L, 0, 4);
+
+    lua_pushnumber(L, cameraBoundMinx);
+    lua_setfield(L, -2, "x");
+    lua_pushnumber(L, cameraBoundMiny);
+    lua_setfield(L, -2, "y");
+    lua_pushnumber(L, cameraBoundMaxx - cameraBoundMinx);
+    lua_setfield(L, -2, "w");
+    lua_pushnumber(L, cameraBoundMaxy - cameraBoundMiny);
+    lua_setfield(L, -2, "h");
+
+    return 1;
+}
+
 static const struct luaL_Reg cameralib [] = {
     {"move", wrap_movecamera},
     {"set", wrap_setcamera},
     {"location", wrap_getcameracoords},
+    {"setLimit", wrap_setlimitcamera},
+    {"getLimit", wrap_getlimitcamera},
+    {"setLimits", wrap_setcameralimits},
+    {"getLimits", wrap_getcameralimits},
     {NULL, NULL}
 };
 
