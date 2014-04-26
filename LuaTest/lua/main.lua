@@ -184,7 +184,7 @@ function Level:init(settings)
             elseif triggerCharacters:find(c) then
                 if settings[c] then
                     local triggerSettings = {callback = settings[c].callback,
-                        name = c}
+                        name = c, solid = settings[c].solid}
                     if settings[c].once then
                         triggerSettings.once = settings[c].once
                     end
@@ -212,6 +212,7 @@ function Trigger:init(settings)
     self._triggerName = settings.name
     self._triggered = false
     self._playerIn = false
+    self._solid = settings.solid
     self:initColoredRect(renderer, 200, 200, 0, string.format("Trigger{%d,%d,%d}", 200, 200, 0))
 end
 function Trigger:render(renderer, dt)
@@ -219,6 +220,7 @@ function Trigger:render(renderer, dt)
 end
 function Trigger:input(event, pushed)
     if self._triggerOnUse and
+       self._playerIn and
        not getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] and
        not getCurrentScene().triggeredThisFrame[self._triggerName] then
         if pushed and not event.repeated then
@@ -234,27 +236,31 @@ function Trigger:input(event, pushed)
         end
     end
 end
+function Trigger:tick(dt)
+    local player = getCurrentScene():getEntity("Player")
+    local playerCenter = player:getRect():getCenter()
+    local center = self._rect:getCenter()
+    if (center - playerCenter):length() < tileDrawSize * 1.5 then
+        self._playerIn = true
+    else
+        self._playerIn = false
+    end
+end
 function Trigger:collision(between, deltas)
-    if not self._triggerOnUse and
-       not getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] and
-       not getCurrentScene().triggeredThisFrame[self._triggerName] then
-        local entsColliding = 0
-        for i, ent in ipairs(between) do
-            entsColliding = entsColliding + 1
-            if ent.name:find("Player") then
-                if not self._triggerOnUse then
-                    self._triggeredCallback(self._rect)
-                    getCurrentScene().triggeredThisFrame[self._triggerName] = true
-                    if self._triggerOnce then
-                        getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] = true
-                    end
-                else
-                    self._playerIn = true
+    for i, ent in ipairs(between) do
+        if ent.name:find("Player") then
+            if self._solid then
+                ent._rect = ent._rect - deltas[i]
+            end
+            if not self._triggerOnUse and
+               not getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] and
+               not getCurrentScene().triggeredThisFrame[self._triggerName] then
+                self._triggeredCallback(self._rect)
+                getCurrentScene().triggeredThisFrame[self._triggerName] = true
+                if self._triggerOnce then
+                    getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] = true
                 end
             end
-        end
-        if entsColliding == 0 and self._playerIn then
-            self._playerIn = false
         end
     end
 end
@@ -306,7 +312,7 @@ function main()
     engine.renderer = renderer
 
     font = ttf.openFont("Arial.ttf", 42)
-    dialogBubbleFont = ttf.openFont("Arial.ttf", 18)
+    dialogBubbleFont = ttf.openFont("Arial.ttf", 20)
     systemDialogFont = ttf.openFont("Arial.ttf", 26)
     engine.cacheAtlas(font, {r=0, g=0, b=0}, glyphs)
     engine.cacheAtlas(dialogBubbleFont, npcTextColor, glyphs)

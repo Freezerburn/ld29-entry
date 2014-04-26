@@ -149,6 +149,8 @@ end
 _vector_mt.__add      = _Vector.add
 _vector_mt.__sub      = _Vector.subtract
 _vector_mt.__tostring = _Vector.toString
+_vector_mt.length     = _Vector.length
+_vector_mt.length2    = _Vector.length2
 _vector_mt.clone      = _Vector.clone
 _vector_mt.__index    = _vector_mt
 engine.Vector         = _Vector
@@ -179,6 +181,18 @@ function _Rectangle.add(rect1, rect2)
                 rect1.h + rect2.h)
     end
 end
+function _Rectangle.sub(rect1, rect2)
+    if getmetatable(rect2) == _vector_mt then
+        return _Rectangle.new(rect1.x - rect2.x,
+                rect1.y - rect2.y,
+                rect1.w, rect1.h)
+    else
+        return _Rectangle.new(rect1.x - rect2.x,
+                rect1.y - rect2.y,
+                rect1.w - rect2.w,
+                rect1.h - rect2.h)
+    end
+end
 function _Rectangle.isPointIn(self, point)
     if point.x < self.x then return false
     elseif point.x > self.x + self.w then return false
@@ -197,6 +211,7 @@ function _Rectangle.clone(self)
     return engine.Rectangle.new(self.x, self.y, self.w, self.h)
 end
 _rect_mt.__add      = _Rectangle.add
+_rect_mt.__sub      = _Rectangle.sub
 _rect_mt.__tostring = _Rectangle.toString
 _rect_mt.isPointIn  = _Rectangle.isPointIn
 _rect_mt.getCenter  = _Rectangle.getCenter
@@ -442,6 +457,9 @@ function engine.getLinesHeight(font, color, width, text)
     return totalHeight
 end
 function engine.renderLines(font, color, loc, width, text)
+    -- TODO: Look for "blocks" of text (aka: anything that isn't a space) with which to make
+    -- the determination of when to insert a linebreak. Currently text can get cut off in the
+    -- middle of a word. It's "fine" for now, but would be nice to fix before the end.
     local renderer = engine.renderer
     local atlasString = string.format("%s_{%d,%d,%d}", tostring(font), color.r, color.g, color.b)
     local atlas = metaGlyphAtlas[atlasString]
