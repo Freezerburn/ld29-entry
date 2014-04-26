@@ -11,6 +11,8 @@ local window = nil
 local renderer = nil
 
 local font = nil
+local dialogBubbleFont = nil
+local systemDialogFont = nil
 local tileSize = 16
 local tileDrawSize = 48
 local wallColor = {r = 255, g = 50, b = 50}
@@ -21,6 +23,10 @@ local playerLayer = 10
 local playerSpeed = 250
 local useKey = sdl.KEY_E
 local gameScene = nil
+local triggerCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+local glyphs = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!.,-() "
+local glyphAtlas = {}
 
 local engine = require "engine"
 local class = require "middleclass"
@@ -149,7 +155,6 @@ end
 local numCreatedTriggers = 0
 Level = class("Level", Entity)
 function Level:init(settings)
-    local triggerCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     self._levelMatrix = {}
     local filename = lfs.packagedir() .. "/" .. settings.filename
     for line in io.lines(filename) do
@@ -260,8 +265,14 @@ function main()
         _width, _height,
         _windowFlags)
     renderer = sdl.createRenderer(window, -1, _renderFlags)
+    engine.renderer = renderer
 
     font = ttf.openFont("Arial.ttf", 42)
+    dialogBubbleFont = ttf.openFont("Arial.ttf", 18)
+    systemDialogFont = ttf.openFont("Arial.ttf", 26)
+    engine.cacheAtlas(font, {r=0, g=0, b=0}, glyphs)
+    engine.cacheAtlas(dialogBubbleFont, {r=0, g=0, b=0}, glyphs)
+    engine.cacheAtlas(systemDialogFont, {r=0, g=0, b=0}, glyphs)
 
     gameScene = engine.Scene.new({
         name = "StartScreen",
