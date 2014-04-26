@@ -392,6 +392,7 @@ function engine.startGameLoop(renderer, dt)
     engine.renderer = renderer
     local needgc = false
     local didgc = false
+    local frame = 0
     math.randomseed(os.time())
     collectgarbage("collect")
     collectgarbage("stop")
@@ -421,6 +422,7 @@ function engine.startGameLoop(renderer, dt)
         -- local gctime = 0
         -- local storeDelta = delta
         if (frame % 15) == 0 then
+            -- print("About to do a GC run.")
             needgc = true
         end
         while needgc and delta < 12 do
@@ -431,7 +433,7 @@ function engine.startGameLoop(renderer, dt)
             if finished then
                 break
             end
-            delta = sdl.getTicks() - before
+            -- delta = sdl.getTicks() - before
         end
         if didgc then
             needgc = false
@@ -443,6 +445,7 @@ function engine.startGameLoop(renderer, dt)
         -- end
 
         renderer:present()
+        frame = frame + 1
     end
 end
 
