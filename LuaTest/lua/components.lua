@@ -229,7 +229,7 @@ components.FollowPosition = {
     end
 }
 components.Animated = {
-    initAnimation = function(self, settings)
+    initAnimated = function(self, settings)
         self._animations = {}
     end,
     addAnimation = function(self, settings)
@@ -276,7 +276,7 @@ components.Animated = {
         animationInfos.currentFrame = 1
         animationInfos.currentTiming = 1
     end,
-    renderAnimation = function(self, renderer, dt)
+    renderAnimated = function(self, renderer, dt)
         if self._currentAnimation then
             local animationInfos = self._animations[self._currentAnimation]
             renderer:copy(animationInfos.animatedTex,
@@ -284,7 +284,7 @@ components.Animated = {
                 self._rect)
         end
     end,
-    tickAnimation = function(self, dt)
+    tickAnimated = function(self, dt)
         if self._currentAnimation then
             local animationInfos = self._animations[self._currentAnimation]
             animationInfos.currentTime = animationInfos.currentTime + dt
@@ -308,6 +308,126 @@ components.Animated = {
                     end
                 end
             end
+        end
+    end
+}
+components.FourWayMovement = {
+    initFourWayMovement = function(self, settings)
+        self._speedx = settings.speed.x
+        self._speedy = settings.speed.y
+
+        self._leftKey = settings.keys.left
+        self._rightKey = settings.keys.right
+        self._upKey = settings.keys.up
+        self._downKey = settings.keys.down
+
+        self._leftPushed = false
+        self._rightPushed = false
+        self._upPushed = false
+        self._downPushed = false
+        self._shouldChange = false
+
+        self._idleName = settings.names.idle
+        self._walkLeftName = settings.names.left
+        self._walkRightName = settings.names.right
+        self._walkUpName = settings.names.up
+        self._walkDownName = settings.names.down
+
+        self._walkUpLeftName = settings.names.upLeft
+        self._walkUpRightName = settings.names.upRight
+        self._walkDownLeftName = settings.names.downLeft
+        self._walkDownRightName = settings.names.downRight
+
+        self:setAnimation(self._idleName)
+    end,
+    inputFourWayMovement = function(self, event, pushed)
+        if string.find(event.name, "KEY") and not event.repeated then
+            if event.sym == self._leftKey then
+                if self._leftPushed ~= pushed then
+                    self._shouldChange = true
+                end
+                self._leftPushed = pushed
+                if pushed then
+                    self._vel.x = self._vel.x - self._speedx
+                else
+                    self._vel.x = self._vel.x + self._speedx
+                end
+            elseif event.sym == self._rightKey then
+                if self._rightPushed ~= pushed then
+                    self._shouldChange = true
+                end
+                self._rightPushed = pushed
+                if pushed then
+                    self._vel.x = self._vel.x + self._speedx
+                else
+                    self._vel.x = self._vel.x - self._speedx
+                end
+            elseif event.sym == self._upKey then
+                if self._upPushed ~= pushed then
+                    self._shouldChange = true
+                end
+                self._upPushed = pushed
+                if pushed then
+                    self._vel.y = self._vel.y - self._speedy
+                else
+                    self._vel.y = self._vel.y + self._speedy
+                end
+            elseif event.sym == self._downKey then
+                if self._downPushed ~= pushed then
+                    self._shouldChange = true
+                end
+                self._downPushed = pushed
+                if pushed then
+                    self._vel.y = self._vel.y + self._speedy
+                else
+                    self._vel.y = self._vel.y - self._speedy
+                end
+            end
+        end
+    end,
+    tickFourWayMovement = function(self, dt)
+        if self._shouldChange then
+            if self._upPushed then
+                if self._leftPushed then
+                    if self._walkUpLeftName then
+                        self:setAnimation(self._walkUpLeftName)
+                    else
+                        self:setAnimation(self._walkLeftName)
+                    end
+                elseif self._rightPushed then
+                    if self._walkUpRightName then
+                        self:setAnimation(self._walkUpRightName)
+                    else
+                        self:setAnimation(self._walkRightName)
+                    end
+                else
+                    self:setAnimation(self._walkUpName)
+                end
+            elseif self._downPushed then
+                if self._leftPushed then
+                    if self._walkDownLeftName then
+                        self:setAnimation(self._walkDownLeftName)
+                    else
+                        self:setAnimation(self._walkLeftName)
+                    end
+                elseif self._rightPushed then
+                    if self._walkDownRightName then
+                        self:setAnimation(self._walkDownRightName)
+                    else
+                        self:setAnimation(self._walkRightName)
+                    end
+                else
+                    self:setAnimation(self._walkDownName)
+                end
+            elseif self._leftPushed then
+                self:setAnimation(self._walkLeftName)
+            elseif self._rightPushed then
+                self:setAnimation(self._walkRightName)
+            else
+                self:setAnimation(self._idleName)
+            end
+
+            self._shouldChange = false
         end
     end
 }

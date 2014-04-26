@@ -325,9 +325,9 @@ function _Entity:kill()
     _currentScene:removeEntity(self.name)
 end
 function _Entity:tick(dt)
-    self:moveTick(dt)
+    self:tickMove(dt)
 end
-function _Entity:moveTick(dt)
+function _Entity:tickMove(dt)
     self._vel.x = self._vel.x + self._accel.x * dt
     self._vel.y = self._vel.y + self._accel.y * dt
     self._rect.x = self._rect.x + self._vel.x * dt

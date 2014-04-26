@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		E265E8A3190B28E20022DBFE /* components.lua in Resources */ = {isa = PBXBuildFile; fileRef = E265E8A1190B28E20022DBFE /* components.lua */; };
 		E265E8A4190B28E20022DBFE /* entities.lua in Resources */ = {isa = PBXBuildFile; fileRef = E265E8A2190B28E20022DBFE /* entities.lua */; };
+		E265E8AA190B49AB0022DBFE /* test.level in Resources */ = {isa = PBXBuildFile; fileRef = E265E8A9190B49AB0022DBFE /* test.level */; };
+		E265E8AC190B513C0022DBFE /* PlayerSheet.png in Resources */ = {isa = PBXBuildFile; fileRef = E265E8AB190B513C0022DBFE /* PlayerSheet.png */; };
 		E2AC016918F8B95A0016876E /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2AC016818F8B95A0016876E /* OpenGL.framework */; };
 		E2AC017118F8D10B0016876E /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2AC016E18F8C9800016876E /* libSDL2.a */; };
 		E2AC017318F8D1270016876E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2AC017218F8D1270016876E /* Cocoa.framework */; };
@@ -96,6 +98,8 @@
 /* Begin PBXFileReference section */
 		E265E8A1190B28E20022DBFE /* components.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = components.lua; sourceTree = "<group>"; };
 		E265E8A2190B28E20022DBFE /* entities.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = entities.lua; sourceTree = "<group>"; };
+		E265E8A9190B49AB0022DBFE /* test.level */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test.level; sourceTree = "<group>"; };
+		E265E8AB190B513C0022DBFE /* PlayerSheet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PlayerSheet.png; path = assets/PlayerSheet.png; sourceTree = "<group>"; };
 		E2AC016818F8B95A0016876E /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		E2AC016E18F8C9800016876E /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libSDL2.a; sourceTree = "<group>"; };
 		E2AC017218F8D1270016876E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -315,6 +319,7 @@
 		E2AC019C18FA12010016876E /* images */ = {
 			isa = PBXGroup;
 			children = (
+				E265E8AB190B513C0022DBFE /* PlayerSheet.png */,
 			);
 			name = images;
 			sourceTree = "<group>";
@@ -528,6 +533,7 @@
 		E2E5F71B18F35FC6001418A0 /* lua */ = {
 			isa = PBXGroup;
 			children = (
+				E265E8A9190B49AB0022DBFE /* test.level */,
 				E265E8A1190B28E20022DBFE /* components.lua */,
 				E265E8A2190B28E20022DBFE /* entities.lua */,
 				E2ACADE219018D68009AA3AE /* engine.lua */,
@@ -706,7 +712,9 @@
 				E2ACADE519018D68009AA3AE /* log.lua in Resources */,
 				E2AC019F18FA12180016876E /* Arial.ttf in Resources */,
 				E265E8A4190B28E20022DBFE /* entities.lua in Resources */,
+				E265E8AC190B513C0022DBFE /* PlayerSheet.png in Resources */,
 				E2E5F69118F337AF001418A0 /* Images.xcassets in Resources */,
+				E265E8AA190B49AB0022DBFE /* test.level in Resources */,
 				E2ACADE71902B9CD009AA3AE /* HIragino.otf in Resources */,
 				E2E5F68918F337AF001418A0 /* Credits.rtf in Resources */,
 				E2B2F10C18FDE43F002042F9 /* middleclass.lua in Resources */,
