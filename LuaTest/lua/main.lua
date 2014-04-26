@@ -219,7 +219,7 @@ function Trigger:input(event, pushed)
                     self._triggeredCallback()
                     getCurrentScene().triggeredThisFrame[self._triggerName] = true
                     if self._triggerOnce then
-                        triggersThatHaveBeenTriggered[self._triggerName] = true
+                        getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] = true
                     end
                 end
             end
