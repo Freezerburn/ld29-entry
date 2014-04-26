@@ -41,6 +41,8 @@ static int bmask = 0x00ff0000;
 static int amask = 0xff000000;
 #endif
 
+static float currentx = 0, currenty = 0;
+
 static std::string convertToUpper(std::string str) {
     for(int i = 0; i < str.length(); i++) {
         str[i] = toupper(str[i]);
@@ -168,6 +170,18 @@ static SDL_Rect table_to_rect(lua_State *L, int idx) {
     ret.h = luaL_checkint(L, -1);
     lua_pop(L, 1);
     return ret;
+}
+
+static void rect_to_table(lua_State *L, SDL_Rect rect) {
+    lua_createtable(L, 0, 4);
+    lua_pushinteger(L, rect.x);
+    lua_setfield(L, -2, "x");
+    lua_pushinteger(L, rect.y);
+    lua_setfield(L, -2, "y");
+    lua_pushinteger(L, rect.w);
+    lua_setfield(L, -2, "w");
+    lua_pushinteger(L, rect.h);
+    lua_setfield(L, -2, "h");
 }
 
 #pragma mark -
@@ -427,6 +441,8 @@ static int sdl_wrap_render_copy(lua_State *L) {
             }
             else {
                 SDL_Rect destrect = table_to_rect(L, 4);
+                destrect.x += currentx;
+                destrect.y += currenty;
                 SDL_RenderCopy(renderer, texture, NULL, &destrect);
             }
         }
@@ -437,6 +453,8 @@ static int sdl_wrap_render_copy(lua_State *L) {
             }
             else {
                 SDL_Rect destrect = table_to_rect(L, 4);
+                destrect.x += currentx;
+                destrect.y += currenty;
                 SDL_RenderCopy(renderer, texture, &srcrect, &destrect);
             }
         }
@@ -494,6 +512,34 @@ static int sdl_wrap_renderer_setrendertarget(lua_State *L) {
     return 0;
 }
 
+static int sdl_wrap_renderer_getcliprect(lua_State *L) {
+    SDL_Renderer *renderer = checkrenderer(L, 1);
+    SDL_Rect rect;
+    SDL_RenderGetClipRect(renderer, &rect);
+    rect_to_table(L, rect);
+    return 1;
+}
+
+static int sdl_wrap_renderer_getviewport(lua_State *L) {
+    SDL_Renderer *renderer = checkrenderer(L, 1);
+    SDL_Rect rect;
+    SDL_RenderGetViewport(renderer, &rect);
+    rect_to_table(L, rect);
+    return 1;
+}
+
+static int sdl_wrap_renderer_setviewport(lua_State *L) {
+    SDL_Renderer *renderer = checkrenderer(L, 1);
+    SDL_Rect rect = table_to_rect(L, 2);
+    int err = SDL_RenderSetViewport(renderer, &rect);
+    if(err < 0) {
+        std::stringstream ss;
+        ss << "SDL_Renderer:setViewport: ERROR calling SDL_RenderSetViewport: " << SDL_GetError();
+        luaL_error(L, ss.str().c_str());
+    }
+    return 0;
+}
+
 static int renderer_gc_meta(lua_State *L) {
     SDL_Renderer *renderer = checkrenderer(L, 1);
     if(NULL != renderer) {
@@ -509,6 +555,9 @@ static const struct luaL_Reg sdl_rendererlib [] = {
     {"present", sdl_wrap_renderer_present},
     {"setDrawColor", sdl_wrap_renderer_setdrawcolor},
     {"setRenderTarget", sdl_wrap_renderer_setrendertarget},
+    {"getClipRect", sdl_wrap_renderer_getcliprect},
+    {"getViewport", sdl_wrap_renderer_getviewport},
+    {"setViewport", sdl_wrap_renderer_setviewport},
 
     {"__gc", renderer_gc_meta},
 
@@ -1281,6 +1330,41 @@ static void InitMixerBindings(lua_State *L) {
 //    return 0;
 //}
 
+#pragma mark -
+#pragma mark Camera wrapper
+
+static int wrap_movecamera(lua_State *L) {
+    float dx = luaL_checknumber(L, 1);
+    float dy = luaL_checknumber(L, 2);
+    currentx += dx;
+    currenty += dy;
+    return 0;
+}
+
+static int wrap_setcamera(lua_State *L) {
+    float x = luaL_checknumber(L, 1);
+    float y = luaL_checknumber(L, 2);
+    currentx = x;
+    currenty = y;
+    return 0;
+}
+
+static int wrap_getcameracoords(lua_State *L) {
+    lua_pushnumber(L, currentx);
+    lua_pushnumber(L, currenty);
+    return 2;
+}
+
+static const struct luaL_Reg cameralib [] = {
+    {"move", wrap_movecamera},
+    {"set", wrap_setcamera},
+    {"location", wrap_getcameracoords},
+    {NULL, NULL}
+};
+
+#pragma mark -
+#pragma mark luaload functions
+
 int luaload_sdl2(lua_State *L) {
     InitSDLBindings(L);
 //    lua_atpanic(L, custom_atpanic);
@@ -1299,5 +1383,10 @@ int luaload_ttf(lua_State *L) {
 
 int luaload_mixer(lua_State *L) {
     InitMixerBindings(L);
+    return 1;
+}
+
+int luaload_camera(lua_State *L) {
+    luaL_newlib(L, cameralib);
     return 1;
 }

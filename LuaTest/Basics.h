@@ -17,5 +17,6 @@ int luaload_sdl2(lua_State *L);
 int luaload_img(lua_State *L);
 int luaload_ttf(lua_State *L);
 int luaload_mixer(lua_State *L);
+int luaload_camera(lua_State *L);
 
 #endif /* defined(__LuaTest__Basics__) */

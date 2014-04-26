@@ -1,5 +1,12 @@
 package.path = lfs.packagedir() .. "/?.lua"
 
+local engine = require "engine"
+local class = require "middleclass"
+local log = require "log"
+
+local components = require "components"
+local entities = require "entities"
+
 local _width = 640
 local _height = 480
 local _windowFlags = bit32.bor(sdl.WINDOW_OPENGL,
@@ -34,13 +41,6 @@ local timersCreated = 0
 
 local glyphs = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!.,-()'\" "
 local glyphAtlas = {}
-
-local engine = require "engine"
-local class = require "middleclass"
-local log = require "log"
-
-local components = require "components"
-local entities = require "entities"
 
 local Entity = engine.Entity
 local Vector = engine.Vector
@@ -108,7 +108,9 @@ function Player:render(renderer, dt)
 end
 function Player:tick(dt)
     self:tickFourWayMovement(dt)
+    local prevx, prevy = self._rect.x, self._rect.y
     self:tickMove(dt)
+    camera.move(prevx - self._rect.x, prevy - self._rect.y)
     self:tickAnimated(dt)
 end
 function Player:input(event, pushed)
@@ -138,14 +140,20 @@ function Player:collision(between, deltas)
     end
     if minx ~= math.huge then
         self._rect.x = self._rect.x + minx
+        camera.move(-minx, 0)
     end
     if miny ~= math.huge then
         self._rect.y = self._rect.y + miny
+        camera.move(0, -miny)
     end
 end
 function Player:getRect()
     return Rectangle.new(self._rect.x + 15, self._rect.y + 15,
         self._rect.w - 25, self._rect.h - 25)
+end
+function Player:setRect(rect)
+    camera.move(self._rect.x - rect.x, self._rect.y - rect.y)
+    self._rect = rect
 end
 
 local wallsCreated = 0
@@ -273,7 +281,7 @@ function Trigger:collision(between, deltas)
     for i, ent in ipairs(between) do
         if ent.name:find("Player") then
             if self._solid then
-                ent._rect = ent._rect - deltas[i]
+                ent:setRect(ent._rect - deltas[i])
             end
             if not self._triggerOnUse and
                not getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] and
@@ -333,6 +341,11 @@ function main()
         _windowFlags)
     renderer = sdl.createRenderer(window, -1, _renderFlags)
     engine.renderer = renderer
+    -- local cliprect = renderer:getClipRect()
+    -- local viewport = renderer:getViewport()
+    -- print(string.format("x = %d, y = %d, w = %d, h = %d", cliprect.x, cliprect.y, cliprect.w, cliprect.h))
+    -- print(string.format("x = %d, y = %d, w = %d, h = %d", viewport.x, viewport.y, viewport.w, viewport.h))
+    -- renderer:setViewport({x=-50, y=-50, w=viewport.w, h=viewport.h})
 
     font = ttf.openFont("Arial.ttf", 42)
     dialogBubbleFont = ttf.openFont("Arial.ttf", 20)

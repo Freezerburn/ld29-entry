@@ -14,6 +14,7 @@
 		E265E8AE190BF6550022DBFE /* AppIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = E265E8AD190BF6550022DBFE /* AppIcon.png */; };
 		E265E8B1190C0ADA0022DBFE /* NPCLeft.png in Resources */ = {isa = PBXBuildFile; fileRef = E265E8AF190C0ADA0022DBFE /* NPCLeft.png */; };
 		E265E8B2190C0ADA0022DBFE /* SpeechBubble.png in Resources */ = {isa = PBXBuildFile; fileRef = E265E8B0190C0ADA0022DBFE /* SpeechBubble.png */; };
+		E265E8B4190C1B550022DBFE /* ArtGalleryTerrain.png in Resources */ = {isa = PBXBuildFile; fileRef = E265E8B3190C1B550022DBFE /* ArtGalleryTerrain.png */; };
 		E2AC016918F8B95A0016876E /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2AC016818F8B95A0016876E /* OpenGL.framework */; };
 		E2AC017118F8D10B0016876E /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2AC016E18F8C9800016876E /* libSDL2.a */; };
 		E2AC017318F8D1270016876E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2AC017218F8D1270016876E /* Cocoa.framework */; };
@@ -106,6 +107,7 @@
 		E265E8AD190BF6550022DBFE /* AppIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = AppIcon.png; path = assets/AppIcon.png; sourceTree = "<group>"; };
 		E265E8AF190C0ADA0022DBFE /* NPCLeft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = NPCLeft.png; path = assets/NPCLeft.png; sourceTree = "<group>"; };
 		E265E8B0190C0ADA0022DBFE /* SpeechBubble.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = SpeechBubble.png; path = assets/SpeechBubble.png; sourceTree = "<group>"; };
+		E265E8B3190C1B550022DBFE /* ArtGalleryTerrain.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ArtGalleryTerrain.png; path = assets/ArtGalleryTerrain.png; sourceTree = "<group>"; };
 		E2AC016818F8B95A0016876E /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		E2AC016E18F8C9800016876E /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libSDL2.a; sourceTree = "<group>"; };
 		E2AC017218F8D1270016876E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -325,6 +327,7 @@
 		E2AC019C18FA12010016876E /* images */ = {
 			isa = PBXGroup;
 			children = (
+				E265E8B3190C1B550022DBFE /* ArtGalleryTerrain.png */,
 				E265E8AF190C0ADA0022DBFE /* NPCLeft.png */,
 				E265E8B0190C0ADA0022DBFE /* SpeechBubble.png */,
 				E265E8AD190BF6550022DBFE /* AppIcon.png */,
@@ -724,6 +727,7 @@
 				E265E8B2190C0ADA0022DBFE /* SpeechBubble.png in Resources */,
 				E265E8A4190B28E20022DBFE /* entities.lua in Resources */,
 				E265E8B1190C0ADA0022DBFE /* NPCLeft.png in Resources */,
+				E265E8B4190C1B550022DBFE /* ArtGalleryTerrain.png in Resources */,
 				E265E8AC190B513C0022DBFE /* PlayerSheet.png in Resources */,
 				E2E5F69118F337AF001418A0 /* Images.xcassets in Resources */,
 				E265E8AA190B49AB0022DBFE /* test.level in Resources */,

@@ -51,6 +51,7 @@ static const luaL_Reg loadedlibs[] = {
     {"mixer", luaload_mixer},
     {"engine", luaload_engine},
     {"lfs", luaopen_lfs},
+    {"camera", luaload_camera},
 
   {NULL, NULL}
 };
