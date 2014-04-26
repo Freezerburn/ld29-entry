@@ -191,6 +191,9 @@ function Level:init(settings)
                     if settings[c].triggerOnUse then
                         triggerSettings.onUse = settings[c].triggerOnUse
                     end
+                    if settings[c].texture then
+                        triggerSettings.texture = settings[c].texture
+                    end
                     getCurrentScene():createEntity("Trigger", "Trigger" .. numCreatedTriggers,
                         (x - 1) * tileDrawSize, (y - 1) * tileDrawSize,
                         tileDrawSize, tileDrawSize, triggerLayer,
@@ -205,6 +208,7 @@ end
 
 Trigger = class("Trigger", Entity)
 Trigger:include(components.ColoredRect)
+Trigger:include(components.Animated)
 function Trigger:init(settings)
     self._triggeredCallback = settings.callback
     self._triggerOnUse = settings.onUse
@@ -213,10 +217,25 @@ function Trigger:init(settings)
     self._triggered = false
     self._playerIn = false
     self._solid = settings.solid
-    self:initColoredRect(renderer, 200, 200, 0, string.format("Trigger{%d,%d,%d}", 200, 200, 0))
+    if not settings.texture then
+        self:initColoredRect(renderer, 200, 200, 0, string.format("Trigger{%d,%d,%d}", 200, 200, 0))
+    else
+        self._texture = true
+        self:initAnimated()
+        self:addAnimation(settings.texture)
+        self:setAnimation(settings.texture.name)
+    end
 end
 function Trigger:render(renderer, dt)
-    self:renderColoredRect(renderer, dt)
+    if not self._texture then
+        self:renderColoredRect(renderer, dt)
+    else
+        self:renderAnimated(renderer, dt)
+    end
+end
+function Trigger:getRect()
+    return Rectangle.new(self._rect.x + 15, self._rect.y + 9,
+        self._rect.w - 30, self._rect.h - 18)
 end
 function Trigger:input(event, pushed)
     if self._triggerOnUse and
@@ -239,11 +258,15 @@ end
 function Trigger:tick(dt)
     local player = getCurrentScene():getEntity("Player")
     local playerCenter = player:getRect():getCenter()
-    local center = self._rect:getCenter()
-    if (center - playerCenter):length() < tileDrawSize * 1.5 then
+    local selfRect = self:getRect()
+    local center = selfRect:getCenter()
+    if (center - playerCenter):length() < (selfRect.w > selfRect.h and selfRect.w or selfRect.h) * 1.5 then
         self._playerIn = true
     else
         self._playerIn = false
+    end
+    if self._texture then
+        self:tickAnimated(dt)
     end
 end
 function Trigger:collision(between, deltas)
@@ -338,7 +361,16 @@ function main()
                                     end
                     end,
                     triggerOnUse = true,
-                    solid = true}
+                    solid = true,
+                    texture = {
+                        filename = "NPCLeft.png",
+                        name = "idle",
+                        frames = 1,
+                        width = tileSize,
+                        height = tileSize,
+                        start = {x = 0, y = 0},
+                        animationTime = 100
+                    }}
                 })
             renderer:setDrawColor(255, 255, 255)
             self:createEntity("Cleanup", "Cleanup", 0, 0, 0, 0, 100)
