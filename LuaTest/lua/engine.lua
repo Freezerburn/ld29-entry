@@ -384,6 +384,7 @@ end
 local going = true
 local frame = 0
 local textureCache = {}
+local metaGlyphAtlas = {}
 function engine.cacheTexture(tex, name)
     textureCache[name] = tex
 end
@@ -394,6 +395,63 @@ function engine.removeTexture(name)
 end
 function engine.getCachedTexture(name)
     return textureCache[name]
+end
+function engine.cacheAtlas(font, color, glyphs)
+    local renderer = engine.renderer
+    local atlas = {}
+    for c in glyphs:gmatch(".") do
+        local minx, maxx, miny, maxy, advance = font:glyphMetrics(c)
+        local surface = font:renderGlyphBlended(c, color.r, color.b, color.b)
+        local texture = renderer:createTextureFromSurface(surface)
+        -- log.info("c = %s, minx = %s, maxx = %s, miny = %s, maxy = %s, advance = %s",
+        --     c, minx, maxx, miny, maxy, advance)
+        atlas[c] = {
+            minx = minx,
+            maxx = maxx,
+            miny = miny,
+            maxy = maxy,
+            advance = advance,
+            texture = texture
+        }
+    end
+    local atlasString = string.format("%s_{%d,%d,%d}", tostring(font), color.r, color.g, color.b)
+    metaGlyphAtlas[atlasString] = atlas
+end
+function engine.destroyAtlas(font, color)
+    local atlasString = string.format("%s_{%d,%d,%d}", tostring(font), color.r, color.g, color.b)
+    if metaGlyphAtlas[atlasString] then
+        metaGlyphAtlas[atlasString] = nil
+    end
+end
+function engine.renderLines(font, color, loc, width, text)
+    local renderer = engine.renderer
+    local atlasString = string.format("%s_{%d,%d,%d}", tostring(font), color.r, color.g, color.b)
+    local atlas = metaGlyphAtlas[atlasString]
+    local x = loc.x
+    local y = loc.y
+    local curWidth = 0
+    local lineSkip = font:lineSkip()
+    local ascent = font:ascent()
+    local descent = font:descent()
+    local glyphHeight = ascent - descent
+    for c in text:gmatch(".") do
+        local minx = atlas[c].minx
+        local maxx = atlas[c].maxx
+        local miny = atlas[c].miny
+        local maxy = atlas[c].maxy
+        local advance = atlas[c].advance
+        local glyphWidth = maxx - minx
+        local dest = _Rectangle.new(x + minx, y + ascent, glyphWidth, glyphHeight)
+        renderer:copy(atlas[c].texture, nil, dest)
+
+        x = x + advance
+        curWidth = curWidth + advance
+        if curWidth > width then
+            curWidth = 0
+            y = y + lineSkip
+            x = loc.x
+        end
+    end
 end
 function engine.quit()
     going = false
