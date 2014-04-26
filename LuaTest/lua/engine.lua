@@ -215,6 +215,7 @@ function _Scene.new(meta)
     local scene = {}
     setmetatable(scene, _scene_mt)
     scene._name2ent = {}
+    scene._layer2ents = {layers = {}}
     scene._createNextFrame = {}
     scene._removeNextFrame = {}
 
@@ -251,10 +252,10 @@ function _scene_mt:init(...) log.debug("Default init called for scene '%s.", sel
 function _scene_mt:show(...) log.debug("Default show called for scene '%s'.", self.name) end
 function _scene_mt:hide(...) log.debug("Default hide called for scene '%s'.", self.name) end
 function _scene_mt:destroy(...) log.debug("Default destroy called for scene '%s'.", self.name) end
-function _scene_mt:createEntity(type, name, x, y, w, h, settings)
-    table.insert(self._createNextFrame, {type=type, name=name, x=x, y=y, w=w, h=h, settings=settings})
+function _scene_mt:createEntity(type, name, x, y, w, h, layer, settings)
+    table.insert(self._createNextFrame, {type=type, name=name, x=x, y=y, w=w, h=h, layer=layer, settings=settings})
 end
-function _scene_mt:addEntity(e, name)
+function _scene_mt:addEntity(e, layer, name)
     if not name then
         name = "Entity_" .. _created_entities
         log.debug("Created entity with sequential name: %s", name)
@@ -264,6 +265,12 @@ function _scene_mt:addEntity(e, name)
     end
 
     self._name2ent[name] = e
+    if not self._layer2ents[layer] then
+        self._layer2ents[layer] = {}
+        table.insert(self._layer2ents.layers, layer)
+        table.sort(self._layer2ents.layers)
+    end
+    self._layer2ents[layer][name] = e
     _created_entities = _created_entities + 1
 end
 function _scene_mt:removeEntity(name)
@@ -288,14 +295,19 @@ function _scene_mt:input(event, pushed)
     end
 end
 function _scene_mt:render(r, dt)
-    for name, ent in pairs(self._name2ent) do
-        ent:render(r, dt)
+    for _, layer in ipairs(self._layer2ents.layers) do
+        for _, ent in pairs(self._layer2ents[layer]) do
+            ent:render(r, dt)
+        end
     end
+    -- for name, ent in pairs(self._name2ent) do
+    --     ent:render(r, dt)
+    -- end
 
     for _, o in pairs(self._createNextFrame) do
         if o.type then
             local entity = _G[o.type](o.name, o.x, o.y, o.w, o.h, o.settings)
-            self:addEntity(entity, o.name)
+            self:addEntity(entity, o.layer, o.name)
         end
     end
     self._createNextFrame = {}

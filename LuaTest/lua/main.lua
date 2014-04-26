@@ -14,6 +14,10 @@ local font = nil
 local tileSize = 16
 local tileDrawSize = 48
 local wallColor = {r = 255, g = 50, b = 50}
+local floorLayer = 0
+local wallLayer = 5
+local triggerLayer = 6
+local playerLayer = 10
 local playerSpeed = 250
 local gameScene = nil
 
@@ -147,7 +151,7 @@ function Level:init(settings)
                 getCurrentScene():createEntity("Wall", "Wall" .. wallsCreated,
                     (x - 1) * tileDrawSize, (y - 1) * tileDrawSize,
                     tileDrawSize, tileDrawSize,
-                    wallColor)
+                    wallLayer, wallColor)
                 wallsCreated = wallsCreated + 1
             elseif c == "@" then
                 getCurrentScene():createEntity("Player", "Player",
@@ -175,8 +179,9 @@ function main()
     gameScene = engine.Scene.new({
         name = "StartScreen",
         init = function(self)
-            -- self:createEntity("Player", "Player", 50, 50, tileDrawSize, tileDrawSize)
-            self:createEntity("Level", "Level", 0, 0, 0, 0, {filename = "test.level"})
+            self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
+                {filename = "test.level",
+                a = function() log.info("Triggered!") end})
             renderer:setDrawColor(255, 255, 255)
         end
     })
