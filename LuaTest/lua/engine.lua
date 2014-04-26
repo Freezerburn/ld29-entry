@@ -307,7 +307,7 @@ function _scene_mt:render(r, dt)
 
     for _, o in pairs(self._createNextFrame) do
         if o.type then
-            local entity = _G[o.type](o.name, o.x, o.y, o.w, o.h, o.settings)
+            local entity = _G[o.type](o.name, o.x, o.y, o.w, o.h, o.layer, o.settings)
             self:addEntity(entity, o.layer, o.name)
         end
     end
@@ -326,8 +326,9 @@ engine.Scene = _Scene
 -- ############################################################################
 -- Definition for an "Entity" class to use as a base for all other Entities.
 local _Entity = class("Entity")
-function _Entity:initialize(name, x, y, w, h, settings)
+function _Entity:initialize(name, x, y, w, h, layer, settings)
     self.name = name
+    self.layer = layer
     self._rect = engine.Rectangle.new(x, y, w, h)
     self._vel = engine.Vector.new()
     self._accel = engine.Vector.new()
