@@ -439,6 +439,11 @@ function engine.startGameLoop(renderer, dt)
         if didgc then
             needgc = false
             didgc = false
+        elseif needgc then
+            if collectgarbage("step", 1) then
+                needgc = false
+                didgc = false
+            end
         end
         -- if (frame % 15) == 0 then
         --     print("GC took " .. gctime .. "ms.")
