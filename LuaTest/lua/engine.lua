@@ -322,7 +322,7 @@ function _scene_mt:render(r, dt)
     self._createNextFrame = {}
 
     for _, o in pairs(self._removeNextFrame) do
-        self._name2ent[o.name] = nil
+        self:removeEntity(o)
     end
     self._removeNextFrame = {}
 end
