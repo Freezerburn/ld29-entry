@@ -560,30 +560,59 @@ local artGalleryStartSettings = {
                     activations.fakeStatue = 4
                 else
                     if not buttonsPressed.room1 then
-                        scene:createEntity("TextBubble", name,
-                            rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
-                            playerLayer + 1,
-                            {
-                                text = "A hidden switch! You press it, but nothing seems to happen.",
-                                background = npcTextBackground,
-                                textColor = npcTextColor,
-                                font = dialogBubbleFont,
-                                buffer = npcDialogBuffer,
-                                timeout = 2
-                            })
+                        if buttonsPressed.room2 then
+                            scene:createEntity("TextBubble", name,
+                                rect.x + rect.w / 2, rect.y, npcDialogWidth + 100, 0,
+                                playerLayer + 1,
+                                {
+                                    text = "A hidden switch! You press it, and realize you are in a virtual world." ..
+                                           "You will be able to leave it now, and escape whoever has captured you.",
+                                    background = npcTextBackground,
+                                    textColor = npcTextColor,
+                                    font = dialogBubbleFont,
+                                    buffer = npcDialogBuffer,
+                                    timeout = 5
+                                })
+                        else
+                            scene:createEntity("TextBubble", name,
+                                rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                                playerLayer + 1,
+                                {
+                                    text = "A hidden switch! You press it, but nothing seems to happen.",
+                                    background = npcTextBackground,
+                                    textColor = npcTextColor,
+                                    font = dialogBubbleFont,
+                                    buffer = npcDialogBuffer,
+                                    timeout = 2
+                                })
+                        end
                         buttonsPressed.room1 = true
                     else
-                        scene:createEntity("TextBubble", name,
-                            rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
-                            playerLayer + 1,
-                            {
-                                text = "I wonder if there are other switches elsewhere...",
-                                background = npcTextBackground,
-                                textColor = npcTextColor,
-                                font = dialogBubbleFont,
-                                buffer = npcDialogBuffer,
-                                timeout = 2
-                            })
+                        if buttonsPressed.room2 then
+                            scene:createEntity("TextBubble", name,
+                                rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                                playerLayer + 1,
+                                {
+                                    text = "You flipped the switches, it's time to escape.",
+                                    background = npcTextBackground,
+                                    textColor = npcTextColor,
+                                    font = dialogBubbleFont,
+                                    buffer = npcDialogBuffer,
+                                    timeout = 2
+                                })
+                        else
+                            scene:createEntity("TextBubble", name,
+                                rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                                playerLayer + 1,
+                                {
+                                    text = "I wonder if there are other switches elsewhere...",
+                                    background = npcTextBackground,
+                                    textColor = npcTextColor,
+                                    font = dialogBubbleFont,
+                                    buffer = npcDialogBuffer,
+                                    timeout = 2
+                                })
+                        end
                     end
                 end
             end
@@ -746,7 +775,7 @@ local artGalleryStartSettings = {
         callback = function(self, rect)
             local scene = getCurrentScene()
             local name = "ArtXBubble"
-            if not activations.gotTreasure then
+            if not activations.gotTreasure and (not buttonsPressed.room1 or not buttonsPressed.room2) then
                 if not scene:getEntity(name) then
                     scene:createEntity("TextBubble", name,
                         rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
@@ -809,33 +838,62 @@ local room1Settings = {
             if not buttonsPressed.room2 then
                 local ent = scene:getEntity(name)
                 if not ent then
-                    scene:createEntity("TextBubble", name,
-                        rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
-                        playerLayer + 1,
-                        {
-                            text = "A curious place for a switch... You press it, but nothing seems to happen.",
-                            background = npcTextBackground,
-                            textColor = npcTextColor,
-                            font = dialogBubbleFont,
-                            buffer = npcDialogBuffer,
-                            timeout = 2
-                        })
+                    if buttonsPressed.room1 then
+                        scene:createEntity("TextBubble", name,
+                            rect.x + rect.w / 2, rect.y, npcDialogWidth + 100, 0,
+                            playerLayer + 1,
+                            {
+                                text = "A curious place for a switch... You press it, and realize you are in a " ..
+                                       "virtual world. You will be able to leave it now, and escape whoever has captured you.",
+                                background = npcTextBackground,
+                                textColor = npcTextColor,
+                                font = dialogBubbleFont,
+                                buffer = npcDialogBuffer,
+                                timeout = 5
+                            })
+                    else
+                        scene:createEntity("TextBubble", name,
+                            rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                            playerLayer + 1,
+                            {
+                                text = "A curious place for a switch... You press it, but nothing seems to happen.",
+                                background = npcTextBackground,
+                                textColor = npcTextColor,
+                                font = dialogBubbleFont,
+                                buffer = npcDialogBuffer,
+                                timeout = 2
+                            })
+                    end
                     buttonsPressed.room2 = true
                 end
             else
                 local ent = scene:getEntity(name)
                 if not ent then
-                    scene:createEntity("TextBubble", name,
-                        rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
-                        playerLayer + 1,
-                        {
-                            text = "I wonder if there are other switches elsewhere...",
-                            background = npcTextBackground,
-                            textColor = npcTextColor,
-                            font = dialogBubbleFont,
-                            buffer = npcDialogBuffer,
-                            timeout = 2
-                        })
+                    if buttonsPressed.room1 then
+                        scene:createEntity("TextBubble", name,
+                            rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                            playerLayer + 1,
+                            {
+                                text = "You flipped the switches, it's time to escape.",
+                                background = npcTextBackground,
+                                textColor = npcTextColor,
+                                font = dialogBubbleFont,
+                                buffer = npcDialogBuffer,
+                                timeout = 2
+                            })
+                    else
+                        scene:createEntity("TextBubble", name,
+                            rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                            playerLayer + 1,
+                            {
+                                text = "I wonder if there are other switches elsewhere...",
+                                background = npcTextBackground,
+                                textColor = npcTextColor,
+                                font = dialogBubbleFont,
+                                buffer = npcDialogBuffer,
+                                timeout = 2
+                            })
+                    end
                 end
             end
         end,
