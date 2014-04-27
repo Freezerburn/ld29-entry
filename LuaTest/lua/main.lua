@@ -41,6 +41,11 @@ local levelSize = {w = 0, h = 0}
 local glitchesCreated = 0
 local floorCreated = 0
 
+local treasureLocation = {}
+
+local buttonsPressed = {room2 = false}
+local activations = {}
+
 local glyphs = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!.,-()'\" "
 local glyphAtlas = {}
 
@@ -58,12 +63,13 @@ local artGalleryFromExit2 = nil
 local exit1FromStart = nil
 local exit1FromExit3 = nil
 
-local exit2FromStart = nil
+local objectiveRoomFrom2 = nil
+local objectiveRoomFrom3 = nil
 
 local artGalleryStartSettings = {
     filename = "art_gallery_start.level",
     a = {
-        callback = function(rect)
+        callback = function(self, rect)
             local scene = getCurrentScene()
             local name = "ArtABubble"
             if not scene:getEntity(name) then
@@ -94,7 +100,7 @@ local artGalleryStartSettings = {
         }
     },
     b = {
-        callback = function(rect)
+        callback = function(self, rect)
             local scene = getCurrentScene()
             local name = "ArtBBubble"
             if not scene:getEntity(name) then
@@ -125,7 +131,7 @@ local artGalleryStartSettings = {
         }
     },
     c = {
-        callback = function(rect)
+        callback = function(self, rect)
             local scene = getCurrentScene()
             local name = "ArtCBubble"
             if not scene:getEntity(name) then
@@ -155,22 +161,7 @@ local artGalleryStartSettings = {
         }
     },
     d = {
-        callback = function(rect)
-            local scene = getCurrentScene()
-            local name = "ArtDBubble"
-            if not scene:getEntity(name) then
-                scene:createEntity("TextBubble", name,
-                    rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
-                    playerLayer + 1,
-                    {
-                        text = "Night time is so depressing... or exciting? You think of your training.",
-                        background = npcTextBackground,
-                        textColor = npcTextColor,
-                        font = dialogBubbleFont,
-                        buffer = npcDialogBuffer,
-                        timeout = 2
-                    })
-            end
+        callback = function(self, rect)
         end,
         triggerOnUse = true,
         solid = true,
@@ -185,7 +176,7 @@ local artGalleryStartSettings = {
         }
     },
     e = {
-        callback = function(rect)
+        callback = function(self, rect)
             local scene = getCurrentScene()
             local name = "ArtEBubble"
             if not scene:getEntity(name) then
@@ -215,7 +206,7 @@ local artGalleryStartSettings = {
         }
     },
     f = {
-        callback = function(rect)
+        callback = function(self, rect)
             local scene = getCurrentScene()
             local name = "ArtFBubble"
             if not scene:getEntity(name) then
@@ -246,7 +237,7 @@ local artGalleryStartSettings = {
         }
     },
     g = {
-        callback = function(rect)
+        callback = function(self, rect)
             local scene = getCurrentScene()
             local name = "ArtGBubble"
             if not scene:getEntity(name) then
@@ -276,7 +267,7 @@ local artGalleryStartSettings = {
         }
     },
     h = {
-        callback = function(rect)
+        callback = function(self, rect)
             local scene = getCurrentScene()
             local name = "ArtHBubble"
             if not scene:getEntity(name) then
@@ -306,7 +297,7 @@ local artGalleryStartSettings = {
         }
     },
     i = {
-        callback = function(rect)
+        callback = function(self, rect)
             local scene = getCurrentScene()
             local name = "ArtIBubble"
             if not scene:getEntity(name) then
@@ -336,7 +327,7 @@ local artGalleryStartSettings = {
         }
     },
     j = {
-        callback = function(rect)
+        callback = function(self, rect)
             local scene = getCurrentScene()
             local name = "ArtJBubble"
             if not scene:getEntity(name) then
@@ -366,22 +357,7 @@ local artGalleryStartSettings = {
         }
     },
     k = {
-        callback = function(rect)
-            local scene = getCurrentScene()
-            local name = "ArtKBubble"
-            if not scene:getEntity(name) then
-                scene:createEntity("TextBubble", name,
-                    rect.x + rect.w / 2 + 30, rect.y, npcDialogWidth, 0,
-                    playerLayer + 1,
-                    {
-                        text = "Some kind of flag...?",
-                        background = npcTextBackground,
-                        textColor = npcTextColor,
-                        font = dialogBubbleFont,
-                        buffer = npcDialogBuffer,
-                        timeout = 2
-                    })
-            end
+        callback = function(self, rect)
         end,
         triggerOnUse = true,
         solid = true,
@@ -396,7 +372,7 @@ local artGalleryStartSettings = {
         }
     },
     l = {
-        callback = function(rect)
+        callback = function(self, rect)
             local scene = getCurrentScene()
             local name = "ArtLBubble"
             if not scene:getEntity(name) then
@@ -426,7 +402,7 @@ local artGalleryStartSettings = {
         }
     },
     m = {
-        callback = function(rect)
+        callback = function(self, rect)
             local scene = getCurrentScene()
             local name = "ArtMBubble"
             if not scene:getEntity(name) then
@@ -456,7 +432,7 @@ local artGalleryStartSettings = {
         }
     },
     n = {
-        callback = function(rect)
+        callback = function(self, rect)
             local scene = getCurrentScene()
             local name = "ArtNBubble"
             if not scene:getEntity(name) then
@@ -486,7 +462,7 @@ local artGalleryStartSettings = {
         }
     },
     o = {
-        callback = function(rect)
+        callback = function(self, rect)
             local scene = getCurrentScene()
             local name = "ArtOBubble"
             if not scene:getEntity(name) then
@@ -517,27 +493,99 @@ local artGalleryStartSettings = {
         }
     },
     p = {
-        callback = function(rect)
+        callback = function(self, rect)
             local scene = getCurrentScene()
             local name = "ArtPBubble"
+            if not activations.fakeStatue then
+                activations.fakeStatue = 0
+            end
             if not scene:getEntity(name) then
-                scene:createEntity("TextBubble", name,
-                    rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
-                    playerLayer + 1,
-                    {
-                        text = "I don't even know what this is. What was the creator thinking?",
-                        background = npcTextBackground,
-                        textColor = npcTextColor,
-                        font = dialogBubbleFont,
-                        buffer = npcDialogBuffer,
-                        timeout = 2
-                    })
+                if activations.fakeStatue == 0 then
+                    scene:createEntity("TextBubble", name,
+                        rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                        playerLayer + 1,
+                        {
+                            text = "I don't even know what this is. What was the creator thinking?",
+                            background = npcTextBackground,
+                            textColor = npcTextColor,
+                            font = dialogBubbleFont,
+                            buffer = npcDialogBuffer,
+                            timeout = 2
+                        })
+                    activations.fakeStatue = 1
+                elseif activations.fakeStatue == 1 then
+                    scene:createEntity("TextBubble", name,
+                        rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                        playerLayer + 1,
+                        {
+                            text = "Wait, is this statue the same as the others?",
+                            background = npcTextBackground,
+                            textColor = npcTextColor,
+                            font = dialogBubbleFont,
+                            buffer = npcDialogBuffer,
+                            timeout = 2
+                        })
+                    activations.fakeStatue = 2
+                elseif activations.fakeStatue == 2 then
+                    scene:createEntity("TextBubble", name,
+                        rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                        playerLayer + 1,
+                        {
+                            text = "Let me examine it closely...",
+                            background = npcTextBackground,
+                            textColor = npcTextColor,
+                            font = dialogBubbleFont,
+                            buffer = npcDialogBuffer,
+                            timeout = 2
+                        })
+                    activations.fakeStatue = 3
+                elseif activations.fakeStatue == 3 then
+                    scene:createEntity("TextBubble", name,
+                        rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                        playerLayer + 1,
+                        {
+                            text = "It's insane to call this art.",
+                            background = npcTextBackground,
+                            textColor = npcTextColor,
+                            font = dialogBubbleFont,
+                            buffer = npcDialogBuffer,
+                            timeout = 2
+                        })
+                    activations.fakeStatue = 4
+                else
+                    if not buttonsPressed.room1 then
+                        scene:createEntity("TextBubble", name,
+                            rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                            playerLayer + 1,
+                            {
+                                text = "A hidden switch! You press it, but nothing seems to happen.",
+                                background = npcTextBackground,
+                                textColor = npcTextColor,
+                                font = dialogBubbleFont,
+                                buffer = npcDialogBuffer,
+                                timeout = 2
+                            })
+                        buttonsPressed.room1 = true
+                    else
+                        scene:createEntity("TextBubble", name,
+                            rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                            playerLayer + 1,
+                            {
+                                text = "I wonder if there are other switches elsewhere...",
+                                background = npcTextBackground,
+                                textColor = npcTextColor,
+                                font = dialogBubbleFont,
+                                buffer = npcDialogBuffer,
+                                timeout = 2
+                            })
+                    end
+                end
             end
         end,
         triggerOnUse = true,
         solid = true,
         texture = {
-            filename = "Statue1.png",
+            filename = "StatueKey.png",
             name = "main",
             frames = 1,
             width = tileSize,
@@ -548,7 +596,7 @@ local artGalleryStartSettings = {
         }
     },
     q = {
-        callback = function(rect)
+        callback = function(self, rect)
             local scene = getCurrentScene()
             local name = "ArtQBubble"
             if not scene:getEntity(name) then
@@ -578,7 +626,7 @@ local artGalleryStartSettings = {
         }
     },
     r = {
-        callback = function(rect)
+        callback = function(self, rect)
             local scene = getCurrentScene()
             local name = "ArtQBubble"
             if not scene:getEntity(name) then
@@ -609,7 +657,7 @@ local artGalleryStartSettings = {
         }
     },
     u = {
-        callback = function(rect)
+        callback = function(self, rect)
             local scene = getCurrentScene()
             local name = "ArtUBubble"
             if not scene:getEntity(name) then
@@ -639,15 +687,163 @@ local artGalleryStartSettings = {
         }
     },
     v = {
-        callback = function(rect)
+        callback = function(self, rect)
+        end,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "ArtPiece2.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100,
+            flipx = true
+        }
+    },
+    t = {
+        callback = function(self, rect)
+            engine.Scene.swap(objectiveRoomFrom2)
+        end,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "Door.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100,
+            flipx = true
+        }
+    },
+    w = {
+        callback = function(self, rect)
+            engine.Scene.swap(exit1FromStart)
+        end,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "Door.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100,
+            flipx = true
+        }
+    },
+    x = {
+        callback = function(self, rect)
             local scene = getCurrentScene()
-            local name = "ArtVBubble"
-            if not scene:getEntity(name) then
+            local name = "ArtXBubble"
+            if not activations.gotTreasure then
+                if not scene:getEntity(name) then
+                    scene:createEntity("TextBubble", name,
+                        rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                        playerLayer + 1,
+                        {
+                            text = "I can't abandon my mission!",
+                            background = npcTextBackground,
+                            textColor = npcTextColor,
+                            font = dialogBubbleFont,
+                            buffer = npcDialogBuffer,
+                            timeout = 2
+                        })
+                end
+            else
+            end
+        end,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "Door.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100,
+            flipx = true
+        }
+    },
+}
+
+local room1Settings = {
+    filename = "room1_fromstart.level",
+    a = {
+        callback = function(self, rect)
+            engine.Scene.swap(artGalleryFromExit1)
+        end,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "Door.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100,
+            flipx = true
+        }
+    },
+    b = {
+        callback = function(self, rect)
+            local scene = getCurrentScene()
+            local name = "ArtBBubble"
+            if not buttonsPressed.room2 then
                 scene:createEntity("TextBubble", name,
-                    rect.x + rect.w / 2 - 30, rect.y, npcDialogWidth, 0,
+                    rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
                     playerLayer + 1,
                     {
-                        text = "This is a very bland piece...",
+                        text = "A curious place for a switch... You press it, but nothing seems to happen.",
+                        background = npcTextBackground,
+                        textColor = npcTextColor,
+                        font = dialogBubbleFont,
+                        buffer = npcDialogBuffer,
+                        timeout = 2
+                    })
+                buttonsPressed.room2 = true
+            else
+                scene:createEntity("TextBubble", name,
+                    rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                    playerLayer + 1,
+                    {
+                        text = "I wonder if there are other switches elsewhere...",
+                        background = npcTextBackground,
+                        textColor = npcTextColor,
+                        font = dialogBubbleFont,
+                        buffer = npcDialogBuffer,
+                        timeout = 2
+                    })
+            end
+        end,
+        triggerOnUse = true,
+        texture = {
+            filename = "Filler.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100,
+            flipx = true
+        }
+    },
+    c = {
+        callback = function(self, rect)
+            local scene = getCurrentScene()
+            local name = "ArtCBubble"
+            if not scene:getEntity(name) then
+                scene:createEntity("TextBubble", name,
+                    rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                    playerLayer + 1,
+                    {
+                        text = "PLACEHOLDER",
                         background = npcTextBackground,
                         textColor = npcTextColor,
                         font = dialogBubbleFont,
@@ -669,50 +865,16 @@ local artGalleryStartSettings = {
             flipx = true
         }
     },
-    t = {
-        callback = function(rect)
-            -- engine.Scene.swap(exit2FromStart)
-        end,
-        triggerOnUse = true,
-        solid = true,
-        texture = {
-            filename = "Door.png",
-            name = "main",
-            frames = 1,
-            width = tileSize,
-            height = tileSize,
-            start = {x = 0, y = 0},
-            animationTime = 100,
-            flipx = true
-        }
-    },
-    w = {
-        callback = function(rect)
-            -- engine.Scene.swap(exit1FromStart)
-        end,
-        triggerOnUse = true,
-        solid = true,
-        texture = {
-            filename = "Door.png",
-            name = "main",
-            frames = 1,
-            width = tileSize,
-            height = tileSize,
-            start = {x = 0, y = 0},
-            animationTime = 100,
-            flipx = true
-        }
-    },
-    x = {
-        callback = function(rect)
+    d = {
+        callback = function(self, rect)
             local scene = getCurrentScene()
-            local name = "ArtVBubble"
+            local name = "ArtDBubble"
             if not scene:getEntity(name) then
                 scene:createEntity("TextBubble", name,
                     rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
                     playerLayer + 1,
                     {
-                        text = "I can't abandon my mission!",
+                        text = "PLACEHOLDER",
                         background = npcTextBackground,
                         textColor = npcTextColor,
                         font = dialogBubbleFont,
@@ -724,7 +886,490 @@ local artGalleryStartSettings = {
         triggerOnUse = true,
         solid = true,
         texture = {
+            filename = "ArtPiece2.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100,
+            flipx = true
+        }
+    },
+    e = {
+        callback = function(self, rect)
+            local scene = getCurrentScene()
+            local name = "ArtEBubble"
+            if not activations.fakePainting then
+                activations.fakePainting = 0
+            end
+            if not scene:getEntity(name) then
+                if activations.fakePainting == 0 then
+                    scene:createEntity("TextBubble", name,
+                        rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                        playerLayer + 1,
+                        {
+                            text = "A beautiful painting. Something bothers you about it though...",
+                            background = npcTextBackground,
+                            textColor = npcTextColor,
+                            font = dialogBubbleFont,
+                            buffer = npcDialogBuffer,
+                            timeout = 2
+                        })
+                    activations.fakePainting = activations.fakePainting + 1
+                elseif activations.fakePainting == 1 then
+                    scene:createEntity("TextBubble", name,
+                        rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                        playerLayer + 1,
+                        {
+                            text = "A beautiful painting. Hmm...",
+                            background = npcTextBackground,
+                            textColor = npcTextColor,
+                            font = dialogBubbleFont,
+                            buffer = npcDialogBuffer,
+                            timeout = 2
+                        })
+                    activations.fakePainting = activations.fakePainting + 1
+                elseif activations.fakePainting == 2 then
+                    scene:createEntity("TextBubble", name,
+                        rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                        playerLayer + 1,
+                        {
+                            text = "A beautiful painting. Why is this painting so odd?",
+                            background = npcTextBackground,
+                            textColor = npcTextColor,
+                            font = dialogBubbleFont,
+                            buffer = npcDialogBuffer,
+                            timeout = 2
+                        })
+                    activations.fakePainting = activations.fakePainting + 1
+                elseif activations.fakePainting == 3 then
+                    scene:createEntity("TextBubble", name,
+                        rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                        playerLayer + 1,
+                        {
+                            text = "A beautiful painting.",
+                            background = npcTextBackground,
+                            textColor = npcTextColor,
+                            font = dialogBubbleFont,
+                            buffer = npcDialogBuffer,
+                            timeout = 2
+                        })
+                    activations.fakePainting = activations.fakePainting + 1
+                else
+                    scene:createEntity("TextBubble", name,
+                        rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                        playerLayer + 1,
+                        {
+                            text = "What? The painting can be moved. You move it out of the way to reveal a hidden passage.",
+                            background = npcTextBackground,
+                            textColor = npcTextColor,
+                            font = dialogBubbleFont,
+                            buffer = npcDialogBuffer,
+                            timeout = 2
+                        })
+                    self:kill()
+                end
+            end
+        end,
+        solid = true,
+        triggerOnUse = true,
+        texture = {
+            filename = "ArtPieceKey.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100
+        }
+    },
+    f = {
+        callback = function(self, rect)
+        end,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "ArtPiece2.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100,
+            flipx = true
+        }
+    },
+    g = {
+        callback = function(self, rect)
+            local scene = getCurrentScene()
+            local name = "ArtGBubble"
+            if not scene:getEntity(name) then
+                scene:createEntity("TextBubble", name,
+                    rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                    playerLayer + 1,
+                    {
+                        text = "PLACEHOLDER",
+                        background = npcTextBackground,
+                        textColor = npcTextColor,
+                        font = dialogBubbleFont,
+                        buffer = npcDialogBuffer,
+                        timeout = 2
+                    })
+            end
+        end,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "NPCUp.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100,
+            flipx = true
+        }
+    },
+    h = {
+        callback = function(self, rect)
+            local scene = getCurrentScene()
+            local name = "ArtHBubble"
+            if not scene:getEntity(name) then
+                scene:createEntity("TextBubble", name,
+                    rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                    playerLayer + 1,
+                    {
+                        text = "PLACEHOLDER",
+                        background = npcTextBackground,
+                        textColor = npcTextColor,
+                        font = dialogBubbleFont,
+                        buffer = npcDialogBuffer,
+                        timeout = 2
+                    })
+            end
+        end,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "ArtPiece2.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100,
+            flipx = true
+        }
+    },
+    i = {
+        callback = function(self, rect)
+            local scene = getCurrentScene()
+            local name = "ArtIBubble"
+            if not scene:getEntity(name) then
+                scene:createEntity("TextBubble", name,
+                    rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                    playerLayer + 1,
+                    {
+                        text = "PLACEHOLDER",
+                        background = npcTextBackground,
+                        textColor = npcTextColor,
+                        font = dialogBubbleFont,
+                        buffer = npcDialogBuffer,
+                        timeout = 2
+                    })
+            end
+        end,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "ArtPiece2.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100,
+            flipx = true
+        }
+    },
+    l = {
+        callback = function(self, rect)
+            engine.Scene.swap(objectiveRoomFrom3)
+        end,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
             filename = "Door.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100,
+            flipx = true
+        }
+    },
+    m = {
+        callback = function(self, rect)
+            local scene = getCurrentScene()
+            local name = "ArtMBubble"
+            if not scene:getEntity(name) then
+                scene:createEntity("TextBubble", name,
+                    rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                    playerLayer + 1,
+                    {
+                        text = "PLACEHOLDER",
+                        background = npcTextBackground,
+                        textColor = npcTextColor,
+                        font = dialogBubbleFont,
+                        buffer = npcDialogBuffer,
+                        timeout = 2
+                    })
+            end
+        end,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "Statue1.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100,
+            flipx = true
+        }
+    },
+    n = {
+        callback = function(self, rect)
+            local scene = getCurrentScene()
+            local name = "ArtNBubble"
+            if not scene:getEntity(name) then
+                scene:createEntity("TextBubble", name,
+                    rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                    playerLayer + 1,
+                    {
+                        text = "PLACEHOLDER",
+                        background = npcTextBackground,
+                        textColor = npcTextColor,
+                        font = dialogBubbleFont,
+                        buffer = npcDialogBuffer,
+                        timeout = 2
+                    })
+            end
+        end,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "Statue1.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100,
+            flipx = true
+        }
+    },
+}
+
+local function getTreasureCallback(self, rect)
+    local entf = getCurrentScene():getEntity("Triggerf")
+    if entf then
+        activations.gotTreasure = true
+        entf:kill()
+        getCurrentScene():createEntity("Trigger", "Trigger" .. 290853097320984329,
+            treasureLocation.x, treasureLocation.y, rect.w, rect.h, playerLayer + 1,
+            {
+                callback = function() end,
+                onUse = true,
+                solid = true,
+                texture = {
+                    filename = "Objective2.png",
+                    name = "main",
+                    frames = 1,
+                    width = tileSize,
+                    height = tileSize,
+                    start = {x = 0, y = 0},
+                    animationTime = 100
+                }
+            })
+        getCurrentScene():createEntity("TextBubble", "GotTreasure",
+            treasureLocation.x + rect.w / 2, treasureLocation.y + rect.h * 2, 200, 0, playerLayer + 1,
+            {
+                text = "I got the treasure I was assigned to steal. Now I just need to make it back out of the museum.",
+                background = npcTextBackground,
+                textColor = npcTextColor,
+                font = dialogBubbleFont,
+                buffer = npcDialogBuffer,
+                timeout = 4
+            })
+    end
+end
+local objectiveRoomSettings = {
+    filename = "objective_room_from2.level",
+    a = {
+        callback = function(self, rect)
+            engine.Scene.swap(artGalleryFromExit2)
+        end,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "Door.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100
+        }
+    },
+    b = {
+        callback = function(self, rect)
+            engine.Scene.swap(exit1FromExit3)
+        end,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "Door.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100
+        }
+    },
+    c = {
+        callback = function(self, rect)
+            getCurrentScene():createEntity("TextBubble", "GotTreasure",
+                rect.x + rect.w / 2 - 100, rect.y, 200, 0, playerLayer + 1,
+                {
+                    text = "It's nice, but I need to focus on getting that treasure!",
+                    background = npcTextBackground,
+                    textColor = npcTextColor,
+                    font = dialogBubbleFont,
+                    buffer = npcDialogBuffer,
+                    timeout = 2
+                })
+        end,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "ArtPiece1.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100
+        }
+    },
+    d = {
+        callback = function(self, rect)
+            getCurrentScene():createEntity("TextBubble", "GotTreasure",
+                rect.x + 120, rect.y, 200, 0, playerLayer + 1,
+                {
+                    text = "It's calming, but I need to focus on getting that treasure!",
+                    background = npcTextBackground,
+                    textColor = npcTextColor,
+                    font = dialogBubbleFont,
+                    buffer = npcDialogBuffer,
+                    timeout = 2
+                })
+        end,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "ArtPiece4.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100
+        }
+    },
+    e = {
+        callback = getTreasureCallback,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "ObjectiveSurroundBottom.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100
+        }
+    },
+    f = {
+        callback = function(self, rect)
+        end,
+        unique = true,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "Objective1.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100
+        }
+    },
+    g = {
+        callback = getTreasureCallback,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "ObjectiveSurroundBottomLeft.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100
+        }
+    },
+    h = {
+        callback = getTreasureCallback,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "ObjectiveSurroundBottomLeft.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100,
+            flipx = true
+        }
+    },
+    i = {
+        callback = getTreasureCallback,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "ObjectiveSurroundLeft.png",
+            name = "main",
+            frames = 1,
+            width = tileSize,
+            height = tileSize,
+            start = {x = 0, y = 0},
+            animationTime = 100,
+        }
+    },
+    j = {
+        callback = getTreasureCallback,
+        triggerOnUse = true,
+        solid = true,
+        texture = {
+            filename = "ObjectiveSurroundLeft.png",
             name = "main",
             frames = 1,
             width = tileSize,
@@ -1007,7 +1652,18 @@ function Level:init(settings)
                     if settings[c].texture then
                         triggerSettings.texture = settings[c].texture
                     end
-                    getCurrentScene():createEntity("Trigger", "Trigger" .. numCreatedTriggers,
+                    local entName = nil
+                    if settings[c].unique then
+                        entName = "Trigger" .. c
+                    else
+                        entName = "Trigger" .. numCreatedTriggers
+                    end
+                    if c == "f" then
+                        treasureLocation.x = (x - 1) * tileDrawSize
+                        treasureLocation.y = (y - 1) * tileDrawSize
+                    end
+                    -- print("Adding in trigger: " .. entName)
+                    getCurrentScene():createEntity("Trigger", entName,
                         (x - 1) * tileDrawSize, (y - 1) * tileDrawSize,
                         tileDrawSize, tileDrawSize, triggerLayer,
                         triggerSettings)
@@ -1068,17 +1724,22 @@ function Trigger:getRect()
     end
 end
 function Trigger:input(event, pushed)
-    if self._triggerOnUse and
-       self._playerIn and
-       not getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] and
-       not getCurrentScene().triggeredThisFrame[self._triggerName] then
-        if pushed and not event.repeated then
-            if string.find(event.name, "KEY") then
-                if event.sym == useKey then
-                    self._triggeredCallback(self._rect)
-                    getCurrentScene().triggeredThisFrame[self._triggerName] = true
-                    if self._triggerOnce then
-                        getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] = true
+    local player = getCurrentScene():getEntity("Player")
+    if player then
+        local totalVel = math.abs(player._vel.x) + math.abs(player._vel.y)
+        if self._triggerOnUse and
+           self._playerIn and
+           not getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] and
+           not getCurrentScene().triggeredThisFrame[self._triggerName] and
+           totalVel == 0 then
+            if pushed and not event.repeated then
+                if string.find(event.name, "KEY") then
+                    if event.sym == useKey then
+                        self:_triggeredCallback(self._rect)
+                        getCurrentScene().triggeredThisFrame[self._triggerName] = true
+                        if self._triggerOnce then
+                            getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] = true
+                        end
                     end
                 end
             end
@@ -1108,7 +1769,7 @@ function Trigger:collision(between, deltas)
             if not self._triggerOnUse and
                not getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] and
                not getCurrentScene().triggeredThisFrame[self._triggerName] then
-                self._triggeredCallback(self._rect)
+                self:_triggeredCallback(self._rect)
                 getCurrentScene().triggeredThisFrame[self._triggerName] = true
                 if self._triggerOnce then
                     getCurrentScene().triggersThatHaveBeenTriggered[self._triggerName] = true
@@ -1187,6 +1848,126 @@ function main()
             self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
                 artGalleryStartSettings)
             renderer:setDrawColor(255, 255, 255)
+            self:createEntity("Cleanup", "Cleanup", 0, 0, 0, 0, 100)
+        end,
+        show = function(self)
+            local level = self:getEntity("Level")
+            if level then
+                level:setLimits()
+                level:setCamera()
+            end
+        end
+    })
+    exit1FromStart = engine.Scene.new({
+        name = "Room1 From Start",
+        init = function(self)
+            self.triggersThatHaveBeenTriggered = {}
+            self.triggeredThisFrame = {}
+            local this = self
+            room1Settings.filename = "room1_fromstart.level"
+            self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
+                room1Settings)
+            -- renderer:setDrawColor(255, 255, 255)
+            self:createEntity("Cleanup", "Cleanup", 0, 0, 0, 0, 100)
+        end,
+        show = function(self)
+            local level = self:getEntity("Level")
+            if level then
+                level:setLimits()
+                level:setCamera()
+            end
+        end
+    })
+    exit1FromExit3 = engine.Scene.new({
+        name = "Room1 From Start",
+        init = function(self)
+            self.triggersThatHaveBeenTriggered = {}
+            self.triggeredThisFrame = {}
+            local this = self
+            room1Settings.filename = "room1_from3.level"
+            self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
+                room1Settings)
+            -- renderer:setDrawColor(255, 255, 255)
+            self:createEntity("Cleanup", "Cleanup", 0, 0, 0, 0, 100)
+        end,
+        show = function(self)
+            local level = self:getEntity("Level")
+            if level then
+                level:setLimits()
+                level:setCamera()
+            end
+        end
+    })
+    artGalleryFromExit1 = engine.Scene.new({
+        name = "Start From Room1",
+        init = function(self)
+            self.triggersThatHaveBeenTriggered = {}
+            self.triggeredThisFrame = {}
+            local this = self
+            artGalleryStartSettings.filename = "art_gallery_start_from1.level"
+            self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
+                artGalleryStartSettings)
+            -- renderer:setDrawColor(255, 255, 255)
+            self:createEntity("Cleanup", "Cleanup", 0, 0, 0, 0, 100)
+        end,
+        show = function(self)
+            local level = self:getEntity("Level")
+            if level then
+                level:setLimits()
+                level:setCamera()
+            end
+        end
+    })
+    artGalleryFromExit2 = engine.Scene.new({
+        name = "Start From Room1",
+        init = function(self)
+            self.triggersThatHaveBeenTriggered = {}
+            self.triggeredThisFrame = {}
+            local this = self
+            artGalleryStartSettings.filename = "art_gallery_start_from2.level"
+            self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
+                artGalleryStartSettings)
+            -- renderer:setDrawColor(255, 255, 255)
+            self:createEntity("Cleanup", "Cleanup", 0, 0, 0, 0, 100)
+        end,
+        show = function(self)
+            local level = self:getEntity("Level")
+            if level then
+                level:setLimits()
+                level:setCamera()
+            end
+        end
+    })
+    objectiveRoomFrom2 = engine.Scene.new({
+        name = "Objective room from start",
+        init = function(self)
+            self.triggersThatHaveBeenTriggered = {}
+            self.triggeredThisFrame = {}
+            local this = self
+            objectiveRoomSettings.filename = "objective_room_from2.level"
+            self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
+                objectiveRoomSettings)
+            -- renderer:setDrawColor(255, 255, 255)
+            self:createEntity("Cleanup", "Cleanup", 0, 0, 0, 0, 100)
+        end,
+        show = function(self)
+            local level = self:getEntity("Level")
+            if level then
+                level:setLimits()
+                level:setCamera()
+            end
+        end
+    })
+    objectiveRoomFrom3 = engine.Scene.new({
+        name = "Objective room from room 2",
+        init = function(self)
+            self.triggersThatHaveBeenTriggered = {}
+            self.triggeredThisFrame = {}
+            local this = self
+            objectiveRoomSettings.filename = "objective_room_from3.level"
+            self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
+                objectiveRoomSettings)
+            -- renderer:setDrawColor(255, 255, 255)
             self:createEntity("Cleanup", "Cleanup", 0, 0, 0, 0, 100)
         end,
         show = function(self)

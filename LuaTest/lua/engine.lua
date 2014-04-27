@@ -310,6 +310,10 @@ function _scene_mt:removeEntity(name)
         if self._layer2ents[layer] then
             self._layer2ents[layer][name] = nil
         end
+
+        if self._collisionEnts[name] then
+            self._collisionEnts[name] = nil
+        end
     end
 end
 function _scene_mt:getEntity(name)
@@ -491,8 +495,15 @@ function engine.renderLines(font, color, loc, width, text)
         local maxy = atlas[c].maxy
         local advance = atlas[c].advance
         local glyphWidth = maxx - minx
+
+        if curWidth + advance > width then
+            curWidth = 0
+            y = y + lineSkip
+            x = loc.x
+        end
+
         local dest = nil
-        if c == "." or c == "I" or c == "!" then
+        if c == "." or c == "I" or c == "!" or c == "," then
             -- SDL_TTF doesn't give good values when attempting to create a glyph for a period.
             -- So we manually override it here.
             dest = _Rectangle.new(x + minx, y, 5, glyphHeight)
@@ -503,11 +514,6 @@ function engine.renderLines(font, color, loc, width, text)
 
         x = x + advance
         curWidth = curWidth + advance
-        if curWidth > width then
-            curWidth = 0
-            y = y + lineSkip
-            x = loc.x
-        end
     end
 end
 function engine.quit()

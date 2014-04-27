@@ -1510,8 +1510,8 @@ static int wrap_movecamera(lua_State *L) {
 static int wrap_setcamera(lua_State *L) {
     float x = luaL_checknumber(L, 1);
     float y = luaL_checknumber(L, 2);
-    currentx -= x - screenWidth / 2.0f;
-    currenty -= y - screenHeight / 2.0f;
+    currentx = screenWidth / 2.0f - x;
+    currenty = screenHeight / 2.0f - y;
     return 0;
 }
 
