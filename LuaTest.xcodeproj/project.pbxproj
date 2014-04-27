@@ -24,6 +24,8 @@
 		E265E8C2190C85670022DBFE /* Floor.png in Resources */ = {isa = PBXBuildFile; fileRef = E265E8C1190C85670022DBFE /* Floor.png */; };
 		E265E8C4190C8E130022DBFE /* Statue1.png in Resources */ = {isa = PBXBuildFile; fileRef = E265E8C3190C8E130022DBFE /* Statue1.png */; };
 		E265E8C6190C90360022DBFE /* ArtPiece4.png in Resources */ = {isa = PBXBuildFile; fileRef = E265E8C5190C90360022DBFE /* ArtPiece4.png */; };
+		E265E8C8190C991A0022DBFE /* ArtPiece5.png in Resources */ = {isa = PBXBuildFile; fileRef = E265E8C7190C991A0022DBFE /* ArtPiece5.png */; };
+		E265E8CA190C9BB50022DBFE /* Door.png in Resources */ = {isa = PBXBuildFile; fileRef = E265E8C9190C9BB50022DBFE /* Door.png */; };
 		E2AC016918F8B95A0016876E /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2AC016818F8B95A0016876E /* OpenGL.framework */; };
 		E2AC017118F8D10B0016876E /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2AC016E18F8C9800016876E /* libSDL2.a */; };
 		E2AC017318F8D1270016876E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2AC017218F8D1270016876E /* Cocoa.framework */; };
@@ -126,6 +128,8 @@
 		E265E8C1190C85670022DBFE /* Floor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Floor.png; path = assets/Floor.png; sourceTree = "<group>"; };
 		E265E8C3190C8E130022DBFE /* Statue1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Statue1.png; path = assets/Statue1.png; sourceTree = "<group>"; };
 		E265E8C5190C90360022DBFE /* ArtPiece4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ArtPiece4.png; path = assets/ArtPiece4.png; sourceTree = "<group>"; };
+		E265E8C7190C991A0022DBFE /* ArtPiece5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ArtPiece5.png; path = assets/ArtPiece5.png; sourceTree = "<group>"; };
+		E265E8C9190C9BB50022DBFE /* Door.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Door.png; path = assets/Door.png; sourceTree = "<group>"; };
 		E2AC016818F8B95A0016876E /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		E2AC016E18F8C9800016876E /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libSDL2.a; sourceTree = "<group>"; };
 		E2AC017218F8D1270016876E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -345,6 +349,8 @@
 		E2AC019C18FA12010016876E /* images */ = {
 			isa = PBXGroup;
 			children = (
+				E265E8C9190C9BB50022DBFE /* Door.png */,
+				E265E8C7190C991A0022DBFE /* ArtPiece5.png */,
 				E265E8C5190C90360022DBFE /* ArtPiece4.png */,
 				E265E8C3190C8E130022DBFE /* Statue1.png */,
 				E265E8C1190C85670022DBFE /* Floor.png */,
@@ -764,8 +770,10 @@
 				E265E8AC190B513C0022DBFE /* PlayerSheet.png in Resources */,
 				E265E8C0190C83200022DBFE /* Glitch.png in Resources */,
 				E2E5F69118F337AF001418A0 /* Images.xcassets in Resources */,
+				E265E8C8190C991A0022DBFE /* ArtPiece5.png in Resources */,
 				E265E8AA190B49AB0022DBFE /* test.level in Resources */,
 				E2ACADE71902B9CD009AA3AE /* HIragino.otf in Resources */,
+				E265E8CA190C9BB50022DBFE /* Door.png in Resources */,
 				E2E5F68918F337AF001418A0 /* Credits.rtf in Resources */,
 				E2B2F10C18FDE43F002042F9 /* middleclass.lua in Resources */,
 				E265E8C2190C85670022DBFE /* Floor.png in Resources */,

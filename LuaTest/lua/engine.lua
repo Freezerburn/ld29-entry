@@ -544,35 +544,37 @@ function engine.startGameLoop(renderer, dt)
         local delta = sdl.getTicks() - before
         -- Only collect garbage a few times a second, and don't let the time spent
         -- collecting garbage be too long.
-        local gctime = 0
-        local storeDelta = delta
-        if (frame % 15) == 0 then
+        -- local gctime = 0
+        -- local storeDelta = delta
+        -- if (frame % 5) == 0 then
             -- print("About to do a GC run.")
-            needgc = true
-        end
-        while needgc and delta < 18 do
-            local beforegc = sdl.getTicks()
-            local finished = collectgarbage("step", 1)
-            gctime = gctime + (sdl.getTicks() - beforegc)
+            -- needgc = true
+        -- end
+        local finished = false
+        -- while not finished and delta < 16 do
+        while not finished do
+            -- local beforegc = sdl.getTicks()
+            local finished = collectgarbage("step", 10)
+            -- gctime = gctime + (sdl.getTicks() - beforegc)
             if finished then
                 didgc = true
                 break
             end
-            delta = sdl.getTicks() - before
+            -- delta = sdl.getTicks() - before
         end
-        if didgc then
-            needgc = false
-            didgc = false
-        elseif needgc then
-            if collectgarbage("step", 1) then
-                needgc = false
-                didgc = false
-            end
-        end
-        if (frame % 15) == 0 then
-            print("GC took " .. gctime .. "ms.")
-            print("Main loop took " .. storeDelta .. "ms.")
-        end
+        -- if didgc then
+        --     needgc = false
+        --     didgc = false
+        -- elseif needgc then
+        --     if collectgarbage("step", 1) then
+        --         needgc = false
+        --         didgc = false
+        --     end
+        -- end
+        -- if (frame % 5) == 0 then
+        --     print("GC took " .. gctime .. "ms.")
+        --     print("Main loop took " .. storeDelta .. "ms.")
+        -- end
 
         renderer:present()
         frame = frame + 1
