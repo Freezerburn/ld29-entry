@@ -96,10 +96,13 @@ function findCollisions(ents)
         if ent.name == "Player" or string.find(ent.name, "Trigger") then
             for _, ent2 in pairs(ents) do
                 if ent ~= ent2 and not ent2.name:find("Particle") then
-                    local collided = aabbCollision(ent:getRect(), ent2:getRect(), normal)
-                    if collided then
-                        between[#between + 1] = ent2
-                        normals[#normals + 1] = normal:clone()
+                    if (ent.name == "Player" and ent2.name:find("Wall")) or
+                        (ent.name:find("Trigger") and ent2.name == "Player") then
+                        local collided = aabbCollision(ent:getRect(), ent2:getRect(), normal)
+                        if collided then
+                            between[#between + 1] = ent2
+                            normals[#normals + 1] = normal:clone()
+                        end
                     end
                 end
             end
@@ -230,6 +233,7 @@ local _Scene = {}
 function _Scene.new(meta)
     local scene = {}
     setmetatable(scene, _scene_mt)
+    scene._collisionEnts = {}
     scene._name2ent = {}
     scene._layer2ents = {layers = {}}
     scene._createNextFrame = {}
@@ -287,7 +291,14 @@ function _scene_mt:addEntity(e, layer, name)
         table.sort(self._layer2ents.layers)
     end
     self._layer2ents[layer][name] = e
+    -- table.insert(self._layer2ents[layer], e)
+    -- table.sort(self._layer2ents[layer], function(e1, e2) return e1.name < e2.name end)
     _created_entities = _created_entities + 1
+
+    if name == "Player" or name:find("Trigger") or name:find("Wall") then
+        -- print(string.format("Adding ent(%s) named '%s' to collision.", e, name))
+        self._collisionEnts[name] = e
+    end
 end
 function _scene_mt:removeEntity(name)
     -- assert(self._name2ent[name], "Cannot remove an entity that is not in the scene.")
@@ -310,7 +321,7 @@ function _scene_mt:tick(dt)
         ent:tick(dt)
     end
     -- local before = sdl.getTicks()
-    findCollisions(self._name2ent)
+    findCollisions(self._collisionEnts)
     -- print(string.format("findCollisions took %dms", sdl.getTicks() - before))
 end
 function _scene_mt:input(event, pushed)
@@ -319,11 +330,14 @@ function _scene_mt:input(event, pushed)
     end
 end
 function _scene_mt:render(r, dt)
+    -- local before = sdl.getTicks()
     for _, layer in ipairs(self._layer2ents.layers) do
+        -- table.sort(self._layer2ents[layer], function(e1, e2) return e1.name < e2.name end)
         for _, ent in pairs(self._layer2ents[layer]) do
             ent:render(r, dt)
         end
     end
+    -- print(string.format("rendering took %dms", sdl.getTicks() - before))
     -- for name, ent in pairs(self._name2ent) do
     --     ent:render(r, dt)
     -- end
@@ -477,7 +491,14 @@ function engine.renderLines(font, color, loc, width, text)
         local maxy = atlas[c].maxy
         local advance = atlas[c].advance
         local glyphWidth = maxx - minx
-        local dest = _Rectangle.new(x + minx, y, glyphWidth, glyphHeight)
+        local dest = nil
+        if c == "." or c == "I" or c == "!" then
+            -- SDL_TTF doesn't give good values when attempting to create a glyph for a period.
+            -- So we manually override it here.
+            dest = _Rectangle.new(x + minx, y, 5, glyphHeight)
+        else
+            dest = _Rectangle.new(x + minx, y, glyphWidth, glyphHeight)
+        end
         renderer:copy(atlas[c].texture, nil, dest)
 
         x = x + advance
@@ -523,21 +544,21 @@ function engine.startGameLoop(renderer, dt)
         local delta = sdl.getTicks() - before
         -- Only collect garbage a few times a second, and don't let the time spent
         -- collecting garbage be too long.
-        -- local gctime = 0
-        -- local storeDelta = delta
+        local gctime = 0
+        local storeDelta = delta
         if (frame % 15) == 0 then
             -- print("About to do a GC run.")
             needgc = true
         end
-        while needgc and delta < 12 do
-            -- local beforegc = sdl.getTicks()
+        while needgc and delta < 18 do
+            local beforegc = sdl.getTicks()
             local finished = collectgarbage("step", 1)
-            -- gctime = gctime + (sdl.getTicks() - beforegc)
+            gctime = gctime + (sdl.getTicks() - beforegc)
             if finished then
                 didgc = true
                 break
             end
-            -- delta = sdl.getTicks() - before
+            delta = sdl.getTicks() - before
         end
         if didgc then
             needgc = false
@@ -548,10 +569,10 @@ function engine.startGameLoop(renderer, dt)
                 didgc = false
             end
         end
-        -- if (frame % 15) == 0 then
-        --     print("GC took " .. gctime .. "ms.")
-        --     print("Main loop took " .. storeDelta .. "ms.")
-        -- end
+        if (frame % 15) == 0 then
+            print("GC took " .. gctime .. "ms.")
+            print("Main loop took " .. storeDelta .. "ms.")
+        end
 
         renderer:present()
         frame = frame + 1

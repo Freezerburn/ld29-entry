@@ -426,6 +426,26 @@ static int sdl_wrap_render_copy(lua_State *L) {
         return 0;
     }
 
+    float offsetx = 0, offsety = 0;
+    if(limitCameraToBounds) {
+        // screenWidth - currentx == right side of camera
+        if(screenWidth - currentx > cameraBoundMaxx) {
+            offsetx = (screenWidth - currentx) - cameraBoundMaxx;
+        }
+        // -currentx == left side of camera
+        else if(-currentx < cameraBoundMinx) {
+            offsetx = -currentx;
+        }
+        // screenHeight - currenty == bottom side of camera
+        if(screenHeight - currenty > cameraBoundMaxy) {
+            offsety = (screenHeight - currenty) - cameraBoundMaxy;
+        }
+        // -currenty == top side of camera
+        else if(-currenty < cameraBoundMiny) {
+            offsety = -currenty;
+        }
+    }
+
     SDL_Renderer *renderer = checkrenderer(L, 1);
     SDL_Texture *texture = checktexture(L, 2);
     if(size == 2) {
@@ -447,8 +467,8 @@ static int sdl_wrap_render_copy(lua_State *L) {
             }
             else {
                 SDL_Rect destrect = table_to_rect(L, 4);
-                destrect.x += currentx;
-                destrect.y += currenty;
+                destrect.x += currentx + offsetx;
+                destrect.y += currenty + offsety;
                 SDL_RenderCopy(renderer, texture, NULL, &destrect);
             }
         }
@@ -459,10 +479,146 @@ static int sdl_wrap_render_copy(lua_State *L) {
             }
             else {
                 SDL_Rect destrect = table_to_rect(L, 4);
-                destrect.x += currentx;
-                destrect.y += currenty;
+                destrect.x += currentx + offsetx;
+                destrect.y += currenty + offsety;
                 SDL_RenderCopy(renderer, texture, &srcrect, &destrect);
             }
+        }
+    }
+    return 0;
+}
+
+static int sdl_wrap_render_copyex(lua_State *L) {
+    int size = lua_gettop(L);
+    if(size < 2) {
+        luaL_error(L, "SDL_Renderer:copy expected at least 2 arguments.");
+        return 0;
+    }
+
+    float offsetx = 0, offsety = 0;
+    if(limitCameraToBounds) {
+        if(screenWidth - currentx > cameraBoundMaxx) {
+            offsetx = (screenWidth - currentx) - cameraBoundMaxx;
+        }
+        else if(-currentx < cameraBoundMinx) {
+            offsetx = -currentx;
+        }
+        if(screenHeight - currenty > cameraBoundMaxy) {
+            offsety = (screenHeight - currenty) - cameraBoundMaxy;
+        }
+        else if(-currenty < cameraBoundMiny) {
+            offsety = -currenty;
+        }
+    }
+
+    SDL_Renderer *renderer = checkrenderer(L, 1);
+    SDL_Texture *texture = checktexture(L, 2);
+    if(size == 2) {
+        SDL_RenderCopy(renderer, texture, NULL, NULL);
+    }
+    else if(size == 3) {
+        if(lua_isnil(L, 3)) {
+            SDL_RenderCopy(renderer, texture, NULL, NULL);
+        }
+        else {
+            SDL_Rect srcrect = table_to_rect(L, 3);
+            SDL_RenderCopy(renderer, texture, &srcrect, NULL);
+        }
+    }
+    else if(size == 4) {
+        if(lua_isnil(L, 3)) {
+            if(lua_isnil(L, 4)) {
+                SDL_RenderCopy(renderer, texture, NULL, NULL);
+            }
+            else {
+                SDL_Rect destrect = table_to_rect(L, 4);
+                destrect.x += currentx + offsetx;
+                destrect.y += currenty + offsety;
+                SDL_RenderCopy(renderer, texture, NULL, &destrect);
+            }
+        }
+        else {
+            SDL_Rect srcrect = table_to_rect(L, 3);
+            if(lua_isnil(L, 4)) {
+                SDL_RenderCopy(renderer, texture, &srcrect, NULL);
+            }
+            else {
+                SDL_Rect destrect = table_to_rect(L, 4);
+                destrect.x += currentx + offsetx;
+                destrect.y += currenty + offsety;
+                SDL_RenderCopy(renderer, texture, &srcrect, &destrect);
+            }
+        }
+    }
+    else {
+//        std::cout << "5 args. Possible table." << std::endl;
+        double angle = 0;
+        SDL_Point *center = NULL;
+        SDL_RendererFlip flip = SDL_FLIP_NONE;
+//        std::cout << "arg 5: " << lua_tostring(L, 5) << std::endl;
+        if(lua_istable(L, 5)) {
+            lua_getfield(L, 5, "angle");
+            if(!lua_isnil(L, 6)) {
+                angle = lua_tonumber(L, 6);
+            }
+            lua_pop(L, 1);
+            lua_getfield(L, 5, "center");
+            if(lua_istable(L, 6)) {
+                center = new SDL_Point();
+                lua_getfield(L, 6, "x");
+                center->x = luaL_checkint(L, 7);
+                lua_pop(L, 1);
+                lua_getfield(L, 6, "y");
+                center->y = luaL_checkint(L, 7);
+                lua_pop(L, 1);
+            }
+            lua_pop(L, 1);
+            lua_getfield(L, 5, "flip");
+//            std::cout << "table flip: " << lua_tostring(L, 6) << std::endl;
+            if(lua_isnumber(L, 6)) {
+                int tmpflip = luaL_checkint(L, 6);
+//                std::cout << "tmpflip = " << tmpflip << std::endl;
+                if(tmpflip & SDL_FLIP_HORIZONTAL && tmpflip & SDL_FLIP_VERTICAL) {
+                    flip = (SDL_RendererFlip)(SDL_FLIP_HORIZONTAL & SDL_FLIP_VERTICAL);
+                }
+                else if(tmpflip & SDL_FLIP_HORIZONTAL) {
+//                    std::cout << "flip horizontal" << std::endl;
+                    flip = SDL_FLIP_HORIZONTAL;
+                }
+                else if(tmpflip & SDL_FLIP_VERTICAL) {
+//                    std::cout << "flip vertical" << std::endl;
+                    flip = SDL_FLIP_VERTICAL;
+                }
+            }
+            lua_pop(L, 1);
+        }
+
+        if(lua_isnil(L, 3)) {
+            if(lua_isnil(L, 4)) {
+                SDL_RenderCopyEx(renderer, texture, NULL, NULL, angle, center, flip);
+            }
+            else {
+                SDL_Rect destrect = table_to_rect(L, 4);
+                destrect.x += currentx + offsetx;
+                destrect.y += currenty + offsety;
+                SDL_RenderCopyEx(renderer, texture, NULL, &destrect, angle, center, flip);
+            }
+        }
+        else {
+            SDL_Rect srcrect = table_to_rect(L, 3);
+            if(lua_isnil(L, 4)) {
+                SDL_RenderCopyEx(renderer, texture, &srcrect, NULL, angle, center, flip);
+            }
+            else {
+                SDL_Rect destrect = table_to_rect(L, 4);
+                destrect.x += currentx + offsetx;
+                destrect.y += currenty + offsety;
+                SDL_RenderCopyEx(renderer, texture, &srcrect, &destrect, angle, center, flip);
+            }
+        }
+
+        if(NULL != center) {
+            delete center;
         }
     }
     return 0;
@@ -558,6 +714,7 @@ static const struct luaL_Reg sdl_rendererlib [] = {
     {"createTextureFromSurface", sdl_wrap_render_texfromsurf},
     {"clear", sdl_wrap_render_clear},
     {"copy", sdl_wrap_render_copy},
+    {"copyEx", sdl_wrap_render_copyex},
     {"present", sdl_wrap_renderer_present},
     {"setDrawColor", sdl_wrap_renderer_setdrawcolor},
     {"setRenderTarget", sdl_wrap_renderer_setrendertarget},
@@ -791,6 +948,9 @@ static void InitSDLBindings(lua_State *L) {
         // SDL Renderer Constants
         def2tup(SDL_RENDERER_ACCELERATED), def2tup(SDL_RENDERER_PRESENTVSYNC),
         def2tup(SDL_RENDERER_SOFTWARE), def2tup(SDL_RENDERER_TARGETTEXTURE),
+
+        // SDL Renderer Flip Constants
+        def2tup(SDL_FLIP_NONE), def2tup(SDL_FLIP_VERTICAL), def2tup(SDL_FLIP_HORIZONTAL),
 
         // SDL Keysym Constants
         key2tup(SDLK_0), key2tup(SDLK_1), key2tup(SDLK_2), key2tup(SDLK_3),
@@ -1344,54 +1504,14 @@ static int wrap_movecamera(lua_State *L) {
     float dy = luaL_checknumber(L, 2);
     currentx += dx;
     currenty += dy;
-    if(limitCameraToBounds) {
-//        std::cout << "currentx = " << currentx << std::endl;
-//        std::cout << "currenty = " << currenty << std::endl;
-//        std::cout << "screenWidth = " << (screenWidth) << std::endl;
-//        std::cout << "screenHeight = " << (screenHeight) << std::endl;
-        if(screenWidth - currentx > cameraBoundMaxx) {
-//            std::cout << "currentx = cameraBoundMaxx(" << cameraBoundMaxx << ") - screenWidth(" << screenWidth << ")" << std::endl;
-            currentx += (screenWidth - currentx) - cameraBoundMaxx;
-        }
-        else if(-currentx < cameraBoundMinx) {
-//            std::cout << "currentx = cameraBoundMinx(" << cameraBoundMinx << ")" << std::endl;
-            currentx = cameraBoundMinx;
-        }
-        if(screenHeight - currenty > cameraBoundMaxy) {
-            currenty += (screenHeight - currenty) - cameraBoundMaxy;
-        }
-        else if(-currenty < cameraBoundMiny) {
-            currenty = cameraBoundMiny;
-        }
-    }
     return 0;
 }
 
 static int wrap_setcamera(lua_State *L) {
     float x = luaL_checknumber(L, 1);
     float y = luaL_checknumber(L, 2);
-    currentx = x;
-    currenty = y;
-    if(limitCameraToBounds) {
-//        std::cout << "currentx = " << currentx << std::endl;
-//        std::cout << "currenty = " << currenty << std::endl;
-//        std::cout << "screenWidth = " << (screenWidth) << std::endl;
-//        std::cout << "screenHeight = " << (screenHeight) << std::endl;
-        if(screenWidth - currentx > cameraBoundMaxx) {
-//            std::cout << "currentx = cameraBoundMaxx(" << cameraBoundMaxx << ") - screenWidth(" << screenWidth << ")" << std::endl;
-            currentx += (screenWidth - currentx) - cameraBoundMaxx;
-        }
-        else if(-currentx < cameraBoundMinx) {
-//            std::cout << "currentx = cameraBoundMinx(" << cameraBoundMinx << ")" << std::endl;
-            currentx = cameraBoundMinx;
-        }
-        if(screenHeight - currenty > cameraBoundMaxy) {
-            currenty += (screenHeight - currenty) - cameraBoundMaxy;
-        }
-        else if(-currenty < cameraBoundMiny) {
-            currenty = cameraBoundMiny;
-        }
-    }
+    currentx -= x - screenWidth / 2.0f;
+    currenty -= y - screenHeight / 2.0f;
     return 0;
 }
 
@@ -1450,6 +1570,36 @@ static int wrap_getcameralimits(lua_State *L) {
     return 1;
 }
 
+static int wrap_isincamera(lua_State *L) {
+    if(!lua_istable(L, 1)) {
+        luaL_error(L, "isInCamera requires a rectangle as the sole argument.");
+        return 0;
+    }
+
+    lua_getfield(L, 1, "x");
+    float x = luaL_checknumber(L, -1);
+    lua_getfield(L, 1, "y");
+    float y = luaL_checknumber(L, -1);
+    lua_getfield(L, 1, "w");
+    float w = luaL_checknumber(L, -1);
+    lua_getfield(L, 1, "h");
+    float h = luaL_checknumber(L, -1);
+    lua_pop(L, 4);
+
+    float cameraRight = screenWidth - currentx;
+    float cameraLeft = -currentx;
+    float cameraBottom = screenHeight - currenty;
+    float cameraTop = -currenty;
+
+    if(x > cameraRight) lua_pushboolean(L, false);
+    else if(x + w < cameraLeft) lua_pushboolean(L, false);
+    else if(y > cameraBottom) lua_pushboolean(L, false);
+    else if(y + h < cameraTop) lua_pushboolean(L, false);
+    else lua_pushboolean(L, true);
+
+    return 1;
+}
+
 static const struct luaL_Reg cameralib [] = {
     {"move", wrap_movecamera},
     {"set", wrap_setcamera},
@@ -1458,6 +1608,7 @@ static const struct luaL_Reg cameralib [] = {
     {"getLimit", wrap_getlimitcamera},
     {"setLimits", wrap_setcameralimits},
     {"getLimits", wrap_getcameralimits},
+    {"isInside", wrap_isincamera},
     {NULL, NULL}
 };
 

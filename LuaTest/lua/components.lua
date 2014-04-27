@@ -247,6 +247,8 @@ components.Animated = {
         elseif settings.texture then
             animationInfos.animatedTex = settings.texture
         end
+        animationInfos.flipx = settings.flipx
+        animationInfos.flipy = settings.flipy
         animationInfos.currentFrame = 1
         animationInfos.frames = settings.frames
         animationInfos.tileWidth = settings.width
@@ -279,9 +281,26 @@ components.Animated = {
     renderAnimated = function(self, renderer, dt)
         if self._currentAnimation then
             local animationInfos = self._animations[self._currentAnimation]
-            renderer:copy(animationInfos.animatedTex,
-                animationInfos.srcRects[animationInfos.currentFrame],
-                self._rect)
+            if animationInfos.flipx and animationInfos.flipy then
+                renderer:copyEx(animationInfos.animatedTex,
+                    animationInfos.srcRects[animationInfos.currentFrame],
+                    self._rect,
+                    {flip = bit32.bor(sdl.FLIP_HORIZONTAL, sdl.FLIP_VERTICAL)})
+            elseif animationInfos.flipx then
+                renderer:copyEx(animationInfos.animatedTex,
+                    animationInfos.srcRects[animationInfos.currentFrame],
+                    self._rect,
+                    {flip = sdl.FLIP_HORIZONTAL})
+            elseif animationInfos.flipy then
+                renderer:copyEx(animationInfos.animatedTex,
+                    animationInfos.srcRects[animationInfos.currentFrame],
+                    self._rect,
+                    {flip = sdl.FLIP_VERTICAL})
+            else
+                renderer:copy(animationInfos.animatedTex,
+                    animationInfos.srcRects[animationInfos.currentFrame],
+                    self._rect)
+            end
         end
     end,
     tickAnimated = function(self, dt)
