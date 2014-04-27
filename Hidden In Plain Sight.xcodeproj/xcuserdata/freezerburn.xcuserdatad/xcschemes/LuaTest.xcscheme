@@ -16,8 +16,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "E2E5F67418F337AF001418A0"
                BuildableName = "LuaTest.app"
-               BlueprintName = "LuaTest"
-               ReferencedContainer = "container:LuaTest.xcodeproj">
+               BlueprintName = "Hidden In Plain Sight"
+               ReferencedContainer = "container:Hidden In Plain Sight.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -34,8 +34,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "E2E5F69518F337AF001418A0"
                BuildableName = "LuaTestTests.xctest"
-               BlueprintName = "LuaTestTests"
-               ReferencedContainer = "container:LuaTest.xcodeproj">
+               BlueprintName = "Hidden In Plain SightTests"
+               ReferencedContainer = "container:Hidden In Plain Sight.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -44,8 +44,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E2E5F67418F337AF001418A0"
             BuildableName = "LuaTest.app"
-            BlueprintName = "LuaTest"
-            ReferencedContainer = "container:LuaTest.xcodeproj">
+            BlueprintName = "Hidden In Plain Sight"
+            ReferencedContainer = "container:Hidden In Plain Sight.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -63,8 +63,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E2E5F67418F337AF001418A0"
             BuildableName = "LuaTest.app"
-            BlueprintName = "LuaTest"
-            ReferencedContainer = "container:LuaTest.xcodeproj">
+            BlueprintName = "Hidden In Plain Sight"
+            ReferencedContainer = "container:Hidden In Plain Sight.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -81,8 +81,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E2E5F67418F337AF001418A0"
             BuildableName = "LuaTest.app"
-            BlueprintName = "LuaTest"
-            ReferencedContainer = "container:LuaTest.xcodeproj">
+            BlueprintName = "Hidden In Plain Sight"
+            ReferencedContainer = "container:Hidden In Plain Sight.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

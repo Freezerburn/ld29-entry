@@ -41,6 +41,10 @@ function TextButton:init(settings)
     local textColor = settings.textColor
     local w, h = settings.font:sizeUTF8(settings.text)
     self._rect.w, self._rect.h = w, h
+    if settings.originIsCenter then
+        self._rect.x = self._rect.x - self._rect.w / 2
+        self._rect.y = self._rect.y - self._rect.h / 2
+    end
 
     local renderer = self._renderer
     local baseSurface = sdl.createRGBSurface(w, h)
@@ -60,20 +64,20 @@ function TextButton:input(event, pushed)
             if self._rect:isPointIn(event) then
                 self._mouseEntered = true
                 if self._enterCallback then
-                    self._enterCallback()
+                    self._enterCallback(self)
                 end
             end
         else
             if not self._rect:isPointIn(event) then
                 self._mouseEntered = false
                 if self._leftCallback then
-                    self._leftCallback()
+                    self._leftCallback(self)
                 end
             end
         end
     elseif string.find(event.name, "MOUSEBUTTON") and pushed and self._mouseEntered then
         if self._clickCallback then
-            self._clickCallback()
+            self._clickCallback(self)
         end
     end
 end
@@ -81,9 +85,10 @@ entities.TextButton = TextButton
 
 Text = class("Text", Entity)
 function Text:init(settings)
-    local surface = splashFont:renderUTF8Blended(settings.text, 255, 255, 255)
-    self._textTex = renderer:createTextureFromSurface(surface)
-    self._rect.w, self._rect.h = splashFont:sizeUTF8(settings.text)
+    local surface = settings.font:renderUTF8Blended(settings.text,
+        settings.r, settings.g, settings.b)
+    self._textTex = self._renderer:createTextureFromSurface(surface)
+    self._rect.w, self._rect.h = settings.font:sizeUTF8(settings.text)
     if settings.useRectAsCenter then
         self._rect.x = self._rect.x - self._rect.w / 2
         self._rect.y = self._rect.y - self._rect.h / 2

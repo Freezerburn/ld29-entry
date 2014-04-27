@@ -281,7 +281,7 @@ function _scene_mt:addEntity(e, layer, name)
         log.debug("Created entity with sequential name: %s", name)
     else
         -- Can only have a potential name clash when not creating a unique, sequential name.
-        assert(not self._name2ent[name], "Cannot have more than one entity with the same name.")
+        assert(not self._name2ent[name], "Cannot have more than one entity with the same name '" .. name .. "'.")
     end
 
     self._name2ent[name] = e
@@ -320,6 +320,14 @@ function _scene_mt:getEntity(name)
     -- assert(self._name2ent[name], "No entity in this scene with the name: " .. name)
     return self._name2ent[name]
 end
+function _scene_mt:clearEntities()
+    self._name2ent = {}
+    self._layer2ents = {}
+    self._layer2ents.layers = {}
+    self._createNextFrame = {}
+    self._removeNextFrame = {}
+    self._collisionEnts = {}
+end
 function _scene_mt:tick(dt)
     for name, ent in pairs(self._name2ent) do
         ent:tick(dt)
@@ -345,6 +353,10 @@ function _scene_mt:render(r, dt)
     -- for name, ent in pairs(self._name2ent) do
     --     ent:render(r, dt)
     -- end
+    for _, o in pairs(self._removeNextFrame) do
+        self:removeEntity(o)
+    end
+    self._removeNextFrame = {}
 
     for _, o in pairs(self._createNextFrame) do
         if o.type then
@@ -353,11 +365,6 @@ function _scene_mt:render(r, dt)
         end
     end
     self._createNextFrame = {}
-
-    for _, o in pairs(self._removeNextFrame) do
-        self:removeEntity(o)
-    end
-    self._removeNextFrame = {}
 end
 function _scene_mt.__gc(scene) scene.destroy() end
 _scene_mt.__index = _scene_mt
@@ -466,11 +473,11 @@ function engine.getLinesHeight(font, color, width, text)
     for c in text:gmatch(".") do
         local advance = atlas[c].advance
 
-        curWidth = curWidth + advance
-        if curWidth > width then
+        if curWidth + advance > width then
             curWidth = 0
             totalHeight = totalHeight + lineSkip
         end
+        curWidth = curWidth + advance
     end
     return totalHeight
 end
@@ -531,10 +538,10 @@ function engine.startGameLoop(renderer, dt)
         local before = sdl.getTicks()
         local event = sdl.pollEvent()
         while event do
-            if event.name == "KEYDOWN" and event.state and event.sym == sdl.KEY_Q then
-                going = false
-                break
-            elseif event.name == "QUIT" then
+            -- if event.name == "KEYDOWN" and event.state and event.sym == sdl.KEY_Q then
+            --     going = false
+            --     break
+            if event.name == "QUIT" then
                 going = false
                 break
             else
@@ -557,12 +564,14 @@ function engine.startGameLoop(renderer, dt)
             -- needgc = true
         -- end
         local finished = false
+        local gcTimeSpent = 0
         -- while not finished and delta < 16 do
         while not finished do
-            -- local beforegc = sdl.getTicks()
+            local beforegc = sdl.getTicks()
             local finished = collectgarbage("step", 10)
+            gcTimeSpent = gcTimeSpent + (sdl.getTicks() - beforegc)
             -- gctime = gctime + (sdl.getTicks() - beforegc)
-            if finished then
+            if finished or gcTimeSpent > 3 then
                 didgc = true
                 break
             end

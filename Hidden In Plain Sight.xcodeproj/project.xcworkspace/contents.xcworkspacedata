@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:LuaTest.xcodeproj">
+      location = "self:Hidden In Plain Sight.xcodeproj">
    </FileRef>
 </Workspace>

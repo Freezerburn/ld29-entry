@@ -41,6 +41,8 @@
 		E265E8E4190D3E850022DBFE /* ObjectiveSurroundBottomLeft.png in Resources */ = {isa = PBXBuildFile; fileRef = E265E8E3190D3E850022DBFE /* ObjectiveSurroundBottomLeft.png */; };
 		E265E8E6190D42280022DBFE /* ObjectiveSurroundLeft.png in Resources */ = {isa = PBXBuildFile; fileRef = E265E8E5190D42280022DBFE /* ObjectiveSurroundLeft.png */; };
 		E265E8E8190D4D2D0022DBFE /* NPCUp.png in Resources */ = {isa = PBXBuildFile; fileRef = E265E8E7190D4D2D0022DBFE /* NPCUp.png */; };
+		E265E8EB190D7E1A0022DBFE /* LightGreenFigure.png in Resources */ = {isa = PBXBuildFile; fileRef = E265E8E9190D7E1A0022DBFE /* LightGreenFigure.png */; };
+		E265E8EC190D7E1A0022DBFE /* LightRedFigure.png in Resources */ = {isa = PBXBuildFile; fileRef = E265E8EA190D7E1A0022DBFE /* LightRedFigure.png */; };
 		E2AC016918F8B95A0016876E /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2AC016818F8B95A0016876E /* OpenGL.framework */; };
 		E2AC017118F8D10B0016876E /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E2AC016E18F8C9800016876E /* libSDL2.a */; };
 		E2AC017318F8D1270016876E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2AC017218F8D1270016876E /* Cocoa.framework */; };
@@ -160,6 +162,8 @@
 		E265E8E3190D3E850022DBFE /* ObjectiveSurroundBottomLeft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ObjectiveSurroundBottomLeft.png; path = assets/ObjectiveSurroundBottomLeft.png; sourceTree = "<group>"; };
 		E265E8E5190D42280022DBFE /* ObjectiveSurroundLeft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ObjectiveSurroundLeft.png; path = assets/ObjectiveSurroundLeft.png; sourceTree = "<group>"; };
 		E265E8E7190D4D2D0022DBFE /* NPCUp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = NPCUp.png; path = assets/NPCUp.png; sourceTree = "<group>"; };
+		E265E8E9190D7E1A0022DBFE /* LightGreenFigure.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = LightGreenFigure.png; path = assets/LightGreenFigure.png; sourceTree = "<group>"; };
+		E265E8EA190D7E1A0022DBFE /* LightRedFigure.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = LightRedFigure.png; path = assets/LightRedFigure.png; sourceTree = "<group>"; };
 		E2AC016818F8B95A0016876E /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		E2AC016E18F8C9800016876E /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libSDL2.a; sourceTree = "<group>"; };
 		E2AC017218F8D1270016876E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -192,13 +196,13 @@
 		E2B2F10B18FDE43F002042F9 /* middleclass.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = middleclass.lua; sourceTree = "<group>"; };
 		E2B2F10D18FDE556002042F9 /* lfs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lfs.c; sourceTree = "<group>"; };
 		E2B2F10E18FDE556002042F9 /* lfs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lfs.h; sourceTree = "<group>"; };
-		E2E5F67518F337AF001418A0 /* LuaTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LuaTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		E2E5F68018F337AF001418A0 /* LuaTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "LuaTest-Info.plist"; sourceTree = "<group>"; };
+		E2E5F67518F337AF001418A0 /* Hidden In Plain Sight.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Hidden In Plain Sight.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E2E5F68018F337AF001418A0 /* Hidden In Plain Sight-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Hidden In Plain Sight-Info.plist"; sourceTree = "<group>"; };
 		E2E5F68218F337AF001418A0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E2E5F68418F337AF001418A0 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		E2E5F68818F337AF001418A0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		E2E5F69018F337AF001418A0 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		E2E5F69618F337AF001418A0 /* LuaTestTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LuaTestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E2E5F69618F337AF001418A0 /* Hidden In Plain SightTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Hidden In Plain SightTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2E5F69E18F337AF001418A0 /* LuaTestTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "LuaTestTests-Info.plist"; sourceTree = "<group>"; };
 		E2E5F6A018F337AF001418A0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E2E5F6A218F337AF001418A0 /* LuaTestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LuaTestTests.m; sourceTree = "<group>"; };
@@ -379,6 +383,8 @@
 		E2AC019C18FA12010016876E /* images */ = {
 			isa = PBXGroup;
 			children = (
+				E265E8E9190D7E1A0022DBFE /* LightGreenFigure.png */,
+				E265E8EA190D7E1A0022DBFE /* LightRedFigure.png */,
 				E265E8E7190D4D2D0022DBFE /* NPCUp.png */,
 				E265E8E5190D42280022DBFE /* ObjectiveSurroundLeft.png */,
 				E265E8E3190D3E850022DBFE /* ObjectiveSurroundBottomLeft.png */,
@@ -440,8 +446,8 @@
 		E2E5F67618F337AF001418A0 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				E2E5F67518F337AF001418A0 /* LuaTest.app */,
-				E2E5F69618F337AF001418A0 /* LuaTestTests.xctest */,
+				E2E5F67518F337AF001418A0 /* Hidden In Plain Sight.app */,
+				E2E5F69618F337AF001418A0 /* Hidden In Plain SightTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -495,7 +501,7 @@
 			isa = PBXGroup;
 			children = (
 				E2E5F68418F337AF001418A0 /* main.cpp */,
-				E2E5F68018F337AF001418A0 /* LuaTest-Info.plist */,
+				E2E5F68018F337AF001418A0 /* Hidden In Plain Sight-Info.plist */,
 				E2E5F68118F337AF001418A0 /* InfoPlist.strings */,
 				E2E5F68718F337AF001418A0 /* Credits.rtf */,
 			);
@@ -721,9 +727,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		E2E5F67418F337AF001418A0 /* LuaTest */ = {
+		E2E5F67418F337AF001418A0 /* Hidden In Plain Sight */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E2E5F6A618F337AF001418A0 /* Build configuration list for PBXNativeTarget "LuaTest" */;
+			buildConfigurationList = E2E5F6A618F337AF001418A0 /* Build configuration list for PBXNativeTarget "Hidden In Plain Sight" */;
 			buildPhases = (
 				E2E5F67118F337AF001418A0 /* Sources */,
 				E2E5F67218F337AF001418A0 /* Frameworks */,
@@ -733,14 +739,14 @@
 			);
 			dependencies = (
 			);
-			name = LuaTest;
+			name = "Hidden In Plain Sight";
 			productName = LuaTest;
-			productReference = E2E5F67518F337AF001418A0 /* LuaTest.app */;
+			productReference = E2E5F67518F337AF001418A0 /* Hidden In Plain Sight.app */;
 			productType = "com.apple.product-type.application";
 		};
-		E2E5F69518F337AF001418A0 /* LuaTestTests */ = {
+		E2E5F69518F337AF001418A0 /* Hidden In Plain SightTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E2E5F6A918F337AF001418A0 /* Build configuration list for PBXNativeTarget "LuaTestTests" */;
+			buildConfigurationList = E2E5F6A918F337AF001418A0 /* Build configuration list for PBXNativeTarget "Hidden In Plain SightTests" */;
 			buildPhases = (
 				E2E5F69218F337AF001418A0 /* Sources */,
 				E2E5F69318F337AF001418A0 /* Frameworks */,
@@ -751,9 +757,9 @@
 			dependencies = (
 				E2E5F69B18F337AF001418A0 /* PBXTargetDependency */,
 			);
-			name = LuaTestTests;
+			name = "Hidden In Plain SightTests";
 			productName = LuaTestTests;
-			productReference = E2E5F69618F337AF001418A0 /* LuaTestTests.xctest */;
+			productReference = E2E5F69618F337AF001418A0 /* Hidden In Plain SightTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -771,7 +777,7 @@
 					};
 				};
 			};
-			buildConfigurationList = E2E5F67018F337AF001418A0 /* Build configuration list for PBXProject "LuaTest" */;
+			buildConfigurationList = E2E5F67018F337AF001418A0 /* Build configuration list for PBXProject "Hidden In Plain Sight" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -784,8 +790,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				E2E5F67418F337AF001418A0 /* LuaTest */,
-				E2E5F69518F337AF001418A0 /* LuaTestTests */,
+				E2E5F67418F337AF001418A0 /* Hidden In Plain Sight */,
+				E2E5F69518F337AF001418A0 /* Hidden In Plain SightTests */,
 			);
 		};
 /* End PBXProject section */
@@ -809,6 +815,7 @@
 				E265E8E2190D3D2B0022DBFE /* art_gallery_start_from2.level in Resources */,
 				E265E8AE190BF6550022DBFE /* AppIcon.png in Resources */,
 				E265E8BA190C687F0022DBFE /* ArtPiece2.png in Resources */,
+				E265E8EB190D7E1A0022DBFE /* LightGreenFigure.png in Resources */,
 				E265E8E6190D42280022DBFE /* ObjectiveSurroundLeft.png in Resources */,
 				E265E8B2190C0ADA0022DBFE /* SpeechBubble.png in Resources */,
 				E265E8B6190C5DDA0022DBFE /* ArtPiece1.png in Resources */,
@@ -834,6 +841,7 @@
 				E2E5F68918F337AF001418A0 /* Credits.rtf in Resources */,
 				E265E8E8190D4D2D0022DBFE /* NPCUp.png in Resources */,
 				E2B2F10C18FDE43F002042F9 /* middleclass.lua in Resources */,
+				E265E8EC190D7E1A0022DBFE /* LightRedFigure.png in Resources */,
 				E265E8C2190C85670022DBFE /* Floor.png in Resources */,
 				E265E8B8190C5DE30022DBFE /* art_gallery_start.level in Resources */,
 				E265E8E0190D3CA80022DBFE /* room1_from3.level in Resources */,
@@ -909,7 +917,7 @@
 /* Begin PBXTargetDependency section */
 		E2E5F69B18F337AF001418A0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = E2E5F67418F337AF001418A0 /* LuaTest */;
+			target = E2E5F67418F337AF001418A0 /* Hidden In Plain Sight */;
 			targetProxy = E2E5F69A18F337AF001418A0 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -1021,7 +1029,7 @@
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
-				INFOPLIST_FILE = "LuaTest/LuaTest-Info.plist";
+				INFOPLIST_FILE = "LuaTest/Hidden In Plain Sight-Info.plist";
 				LD_DYLIB_INSTALL_NAME = "@executable_path/../Resources";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1029,7 +1037,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Hidden In Plain Sight";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1043,7 +1051,7 @@
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
-				INFOPLIST_FILE = "LuaTest/LuaTest-Info.plist";
+				INFOPLIST_FILE = "LuaTest/Hidden In Plain Sight-Info.plist";
 				LD_DYLIB_INSTALL_NAME = "@executable_path/../Resources";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1051,7 +1059,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Hidden In Plain Sight";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -1072,7 +1080,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "LuaTestTests/LuaTestTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Hidden In Plain SightTests";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -1090,7 +1098,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "LuaTest/LuaTest-Prefix.pch";
 				INFOPLIST_FILE = "LuaTestTests/LuaTestTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Hidden In Plain SightTests";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -1099,7 +1107,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		E2E5F67018F337AF001418A0 /* Build configuration list for PBXProject "LuaTest" */ = {
+		E2E5F67018F337AF001418A0 /* Build configuration list for PBXProject "Hidden In Plain Sight" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E2E5F6A418F337AF001418A0 /* Debug */,
@@ -1108,7 +1116,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E2E5F6A618F337AF001418A0 /* Build configuration list for PBXNativeTarget "LuaTest" */ = {
+		E2E5F6A618F337AF001418A0 /* Build configuration list for PBXNativeTarget "Hidden In Plain Sight" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E2E5F6A718F337AF001418A0 /* Debug */,
@@ -1117,7 +1125,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E2E5F6A918F337AF001418A0 /* Build configuration list for PBXNativeTarget "LuaTestTests" */ = {
+		E2E5F6A918F337AF001418A0 /* Build configuration list for PBXNativeTarget "Hidden In Plain SightTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E2E5F6AA18F337AF001418A0 /* Debug */,

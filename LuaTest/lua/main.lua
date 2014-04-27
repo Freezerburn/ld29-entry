@@ -20,11 +20,13 @@ local renderer = nil
 local font = nil
 local dialogBubbleFont = nil
 local systemDialogFont = nil
+local smallText = nil
 local npcDialogWidth = 150
 local npcDialogBuffer = 20
 local npcTextBackground = {r = 0, g = 0, b = 0}
 -- local npcTextColor = {r = 255, g = 255, b = 255}
 local npcTextColor = {r = 0, g = 255, b = 255}
+local figures = {}
 
 local tileSize = 16
 local tileDrawSize = 48
@@ -55,6 +57,10 @@ local Rectangle = engine.Rectangle
 local getCurrentScene = engine.getCurrentScene
 
 local gameScene = nil
+local menuScene = nil
+local startCutscene = nil
+local loseCutscene = nil
+local winCutscene = nil
 
 local artGalleryStart = nil
 local artGalleryFromExit1 = nil
@@ -755,6 +761,11 @@ local artGalleryStartSettings = {
                         })
                 end
             else
+                if buttonsPressed.room1 and buttonsPressed.room2 then
+                    engine.Scene.swap(winCutscene)
+                else
+                    engine.Scene.swap(loseCutscene)
+                end
             end
         end,
         triggerOnUse = true,
@@ -796,30 +807,36 @@ local room1Settings = {
             local scene = getCurrentScene()
             local name = "ArtBBubble"
             if not buttonsPressed.room2 then
-                scene:createEntity("TextBubble", name,
-                    rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
-                    playerLayer + 1,
-                    {
-                        text = "A curious place for a switch... You press it, but nothing seems to happen.",
-                        background = npcTextBackground,
-                        textColor = npcTextColor,
-                        font = dialogBubbleFont,
-                        buffer = npcDialogBuffer,
-                        timeout = 2
-                    })
-                buttonsPressed.room2 = true
+                local ent = scene:getEntity(name)
+                if not ent then
+                    scene:createEntity("TextBubble", name,
+                        rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                        playerLayer + 1,
+                        {
+                            text = "A curious place for a switch... You press it, but nothing seems to happen.",
+                            background = npcTextBackground,
+                            textColor = npcTextColor,
+                            font = dialogBubbleFont,
+                            buffer = npcDialogBuffer,
+                            timeout = 2
+                        })
+                    buttonsPressed.room2 = true
+                end
             else
-                scene:createEntity("TextBubble", name,
-                    rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
-                    playerLayer + 1,
-                    {
-                        text = "I wonder if there are other switches elsewhere...",
-                        background = npcTextBackground,
-                        textColor = npcTextColor,
-                        font = dialogBubbleFont,
-                        buffer = npcDialogBuffer,
-                        timeout = 2
-                    })
+                local ent = scene:getEntity(name)
+                if not ent then
+                    scene:createEntity("TextBubble", name,
+                        rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
+                        playerLayer + 1,
+                        {
+                            text = "I wonder if there are other switches elsewhere...",
+                            background = npcTextBackground,
+                            textColor = npcTextColor,
+                            font = dialogBubbleFont,
+                            buffer = npcDialogBuffer,
+                            timeout = 2
+                        })
+                end
             end
         end,
         triggerOnUse = true,
@@ -843,7 +860,7 @@ local room1Settings = {
                     rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
                     playerLayer + 1,
                     {
-                        text = "PLACEHOLDER",
+                        text = "Soothing. That's it.",
                         background = npcTextBackground,
                         textColor = npcTextColor,
                         font = dialogBubbleFont,
@@ -874,7 +891,7 @@ local room1Settings = {
                     rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
                     playerLayer + 1,
                     {
-                        text = "PLACEHOLDER",
+                        text = "Why do people like painting the night sky so much?",
                         background = npcTextBackground,
                         textColor = npcTextColor,
                         font = dialogBubbleFont,
@@ -972,6 +989,7 @@ local room1Settings = {
                 end
             end
         end,
+        unique = true,
         solid = true,
         triggerOnUse = true,
         texture = {
@@ -1009,7 +1027,7 @@ local room1Settings = {
                     rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
                     playerLayer + 1,
                     {
-                        text = "PLACEHOLDER",
+                        text = "Is there nothing this artist can't do?",
                         background = npcTextBackground,
                         textColor = npcTextColor,
                         font = dialogBubbleFont,
@@ -1040,7 +1058,7 @@ local room1Settings = {
                     rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
                     playerLayer + 1,
                     {
-                        text = "PLACEHOLDER",
+                        text = "I'm so tired of seeing this piece of art...",
                         background = npcTextBackground,
                         textColor = npcTextColor,
                         font = dialogBubbleFont,
@@ -1071,7 +1089,7 @@ local room1Settings = {
                     rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
                     playerLayer + 1,
                     {
-                        text = "PLACEHOLDER",
+                        text = "Honestly? Kind of boring. You expect better from this artist.",
                         background = npcTextBackground,
                         textColor = npcTextColor,
                         font = dialogBubbleFont,
@@ -1119,7 +1137,7 @@ local room1Settings = {
                     rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
                     playerLayer + 1,
                     {
-                        text = "PLACEHOLDER",
+                        text = "Is this some kind of alien baby?",
                         background = npcTextBackground,
                         textColor = npcTextColor,
                         font = dialogBubbleFont,
@@ -1150,7 +1168,7 @@ local room1Settings = {
                     rect.x + rect.w / 2, rect.y, npcDialogWidth, 0,
                     playerLayer + 1,
                     {
-                        text = "PLACEHOLDER",
+                        text = "The artist that made this obviously has too modern of tastes for you.",
                         background = npcTextBackground,
                         textColor = npcTextColor,
                         font = dialogBubbleFont,
@@ -1179,8 +1197,9 @@ local function getTreasureCallback(self, rect)
     if entf then
         activations.gotTreasure = true
         entf:kill()
+        print("Creating trigger with empty pedestal.")
         getCurrentScene():createEntity("Trigger", "Trigger" .. 290853097320984329,
-            treasureLocation.x, treasureLocation.y, rect.w, rect.h, playerLayer + 1,
+            entf._rect.x, entf._rect.y, rect.w, rect.h, playerLayer + 1,
             {
                 callback = function() end,
                 onUse = true,
@@ -1195,8 +1214,9 @@ local function getTreasureCallback(self, rect)
                     animationTime = 100
                 }
             })
+        print("Creating text bubble.")
         getCurrentScene():createEntity("TextBubble", "GotTreasure",
-            treasureLocation.x + rect.w / 2, treasureLocation.y + rect.h * 2, 200, 0, playerLayer + 1,
+            entf._rect.x + rect.w / 2, entf._rect.y + rect.h * 2, 200, 0, playerLayer + 2,
             {
                 text = "I got the treasure I was assigned to steal. Now I just need to make it back out of the museum.",
                 background = npcTextBackground,
@@ -1243,16 +1263,20 @@ local objectiveRoomSettings = {
     },
     c = {
         callback = function(self, rect)
-            getCurrentScene():createEntity("TextBubble", "GotTreasure",
-                rect.x + rect.w / 2 - 100, rect.y, 200, 0, playerLayer + 1,
-                {
-                    text = "It's nice, but I need to focus on getting that treasure!",
-                    background = npcTextBackground,
-                    textColor = npcTextColor,
-                    font = dialogBubbleFont,
-                    buffer = npcDialogBuffer,
-                    timeout = 2
-                })
+            local name = "ArtCBubble"
+            local ent = getCurrentScene():getEntity(name)
+            if not ent then
+                getCurrentScene():createEntity("TextBubble", name,
+                    rect.x + rect.w / 2 - 100, rect.y, 200, 0, playerLayer + 1,
+                    {
+                        text = "It's nice, but I need to focus on getting that treasure!",
+                        background = npcTextBackground,
+                        textColor = npcTextColor,
+                        font = dialogBubbleFont,
+                        buffer = npcDialogBuffer,
+                        timeout = 2
+                    })
+            end
         end,
         triggerOnUse = true,
         solid = true,
@@ -1268,16 +1292,20 @@ local objectiveRoomSettings = {
     },
     d = {
         callback = function(self, rect)
-            getCurrentScene():createEntity("TextBubble", "GotTreasure",
-                rect.x + 120, rect.y, 200, 0, playerLayer + 1,
-                {
-                    text = "It's calming, but I need to focus on getting that treasure!",
-                    background = npcTextBackground,
-                    textColor = npcTextColor,
-                    font = dialogBubbleFont,
-                    buffer = npcDialogBuffer,
-                    timeout = 2
-                })
+            local name = "ArtDBubble"
+            local ent = getCurrentScene():getEntity(name)
+            if not ent then
+                getCurrentScene():createEntity("TextBubble", name,
+                    rect.x + 120, rect.y, 200, 0, playerLayer + 1,
+                    {
+                        text = "It's calming, but I need to focus on getting that treasure!",
+                        background = npcTextBackground,
+                        textColor = npcTextColor,
+                        font = dialogBubbleFont,
+                        buffer = npcDialogBuffer,
+                        timeout = 2
+                    })
+            end
         end,
         triggerOnUse = true,
         solid = true,
@@ -1598,6 +1626,7 @@ local numCreatedTriggers = 0
 Level = class("Level", Entity)
 function Level:init(settings)
     self._levelMatrix = {}
+    self._unique = {}
     local maxLineSize = 0
     local filename = lfs.packagedir() .. "/" .. settings.filename
     for line in io.lines(filename) do
@@ -1655,12 +1684,14 @@ function Level:init(settings)
                     local entName = nil
                     if settings[c].unique then
                         entName = "Trigger" .. c
+                        print(string.format("Scene '%s' making unique trigger '%s'.",
+                            getCurrentScene().name, entName))
+                        table.insert(self._unique, entName)
                     else
                         entName = "Trigger" .. numCreatedTriggers
                     end
                     if c == "f" then
-                        treasureLocation.x = (x - 1) * tileDrawSize
-                        treasureLocation.y = (y - 1) * tileDrawSize
+                        self._treasureLocation = {x = (x - 1) * tileDrawSize, y = (y - 1) * tileDrawSize}
                     end
                     -- print("Adding in trigger: " .. entName)
                     getCurrentScene():createEntity("Trigger", entName,
@@ -1685,6 +1716,20 @@ function Level:setLimits()
 end
 function Level:setCamera()
     camera.set(self._playerStart.x, self._playerStart.y)
+end
+function Level:resetPlayer()
+    local player = getCurrentScene():getEntity("Player")
+    player._rect.x, player._rect.y = self._playerStart.x, self._playerStart.y
+    treasureLocation.x, treasureLocation.y = self._treasureLocation.x, self._treasureLocation.y
+end
+function Level:kill()
+    for _, name in ipairs(self._unique) do
+        local ent = getCurrentScene():getEntity(name)
+        if ent then
+            ent:kill()
+        end
+    end
+    Entity.kill(self)
 end
 
 Trigger = class("Trigger", Entity)
@@ -1748,16 +1793,18 @@ function Trigger:input(event, pushed)
 end
 function Trigger:tick(dt)
     local player = getCurrentScene():getEntity("Player")
-    local playerCenter = player:getRect():getCenter()
-    local selfRect = self:getRect()
-    local center = selfRect:getCenter()
-    if (center - playerCenter):length() < (selfRect.w > selfRect.h and selfRect.w or selfRect.h) * 1.5 then
-        self._playerIn = true
-    else
-        self._playerIn = false
-    end
-    if self._texture then
-        self:tickAnimated(dt)
+    if player then
+        local playerCenter = player:getRect():getCenter()
+        local selfRect = self:getRect()
+        local center = selfRect:getCenter()
+        if (center - playerCenter):length() < (selfRect.w > selfRect.h and selfRect.w or selfRect.h) * 1.5 then
+            self._playerIn = true
+        else
+            self._playerIn = false
+        end
+        if self._texture then
+            self:tickAnimated(dt)
+        end
     end
 end
 function Trigger:collision(between, deltas)
@@ -1813,6 +1860,22 @@ function Cleanup:render()
     getCurrentScene().triggeredThisFrame = {}
 end
 
+SimpleRenderer = class("SimpleRenderer", Entity)
+function SimpleRenderer:init(settings)
+    self._texture = settings.texture
+end
+function SimpleRenderer:render(renderer, dt)
+    renderer:copy(self._texture, nil, self._rect)
+end
+
+GetInput = class("GetInput", Entity)
+function GetInput:init(settings)
+    self._callback = settings.callback
+end
+function GetInput:input(event, pushed)
+    self._callback(event, pushed)
+end
+
 function main()
     math.randomseed(os.time())
 
@@ -1835,9 +1898,341 @@ function main()
     font = ttf.openFont("Arial.ttf", 42)
     dialogBubbleFont = ttf.openFont("Arial.ttf", 20)
     systemDialogFont = ttf.openFont("Arial.ttf", 26)
+    smallText = ttf.openFont("Arial.ttf", 14)
     engine.cacheAtlas(font, {r=0, g=0, b=0}, glyphs)
     engine.cacheAtlas(dialogBubbleFont, npcTextColor, glyphs)
     engine.cacheAtlas(systemDialogFont, {r=0, g=0, b=0}, glyphs)
+    local surface = img.load("LightRedFigure.png")
+    table.insert(figures, renderer:createTextureFromSurface(surface))
+    surface = img.load("LightGreenFigure.png")
+    table.insert(figures, renderer:createTextureFromSurface(surface))
+
+    menuScene = engine.Scene.new({
+        name = "Menu",
+        init = function(self)
+            self._triangleHeight = 18
+            self._triangleWidth = 18
+            self._triangleBuffer = 10
+            local surface = sdl.createRGBSurface(self._triangleWidth, self._triangleHeight)
+            local rect = Rectangle.new(0, 0, 1)
+            for i = 0, self._triangleWidth do
+                rect.x = i
+                rect.y = i
+                rect.h = self._triangleHeight - i * 2
+                surface:fillRect(rect, 255, 255, 255)
+            end
+            self._triangleTex = renderer:createTextureFromSurface(surface)
+            local this = self
+            self:createEntity("Text", "GameNameText",
+                _width / 2, 100, 0, 0, 5,
+                {useRectAsCenter = true, font = font, text = "Hidden in Plain Sight",
+                r = 190, g = 190, b = 0})
+            self:createEntity("TextButton", "GameStart",
+                _width / 2, _height / 2, 0, 0, 5,
+                {
+                    font = font,
+                    text = "Start",
+                    clicked = function(self)
+                        engine.Scene.swap(startCutscene)
+                    end,
+                    entered = function(self)
+                        local name = "RenderStartTriangle"
+                        if not getCurrentScene():getEntity(name) then
+                            this:createEntity("SimpleRenderer", name,
+                                self._rect.x - this._triangleBuffer - this._triangleWidth,
+                                self._rect.y + self._rect.h / 2 - this._triangleHeight / 2,
+                                this._triangleWidth, this._triangleHeight, 6,
+                                {texture = this._triangleTex})
+                        end
+                    end,
+                    left = function(self)
+                        local name = "RenderStartTriangle"
+                        local ent = getCurrentScene():getEntity(name)
+                        if ent then
+                            ent:kill()
+                        end
+                    end,
+                    background = {r = 0, g = 0, b = 0},
+                    textColor = {r = 255, g = 255, b = 255},
+                    originIsCenter = true
+                })
+            self:createEntity("TextButton", "GameQuit",
+                _width / 2, _height / 2 + 50, 0, 0, 5,
+                {
+                    font = font,
+                    text = "Quit",
+                    clicked = function(self)
+                        engine.quit()
+                    end,
+                    entered = function(self)
+                        local name = "RenderQuitTriangle"
+                        if not getCurrentScene():getEntity(name) then
+                            this:createEntity("SimpleRenderer", name,
+                                self._rect.x - this._triangleBuffer - this._triangleWidth,
+                                self._rect.y + self._rect.h / 2 - this._triangleHeight / 2,
+                                this._triangleWidth, this._triangleHeight, 6,
+                                {texture = this._triangleTex})
+                        end
+                    end,
+                    left = function(self)
+                        local name = "RenderQuitTriangle"
+                        local ent = getCurrentScene():getEntity(name)
+                        if ent then
+                            ent:kill()
+                        end
+                    end,
+                    background = {r = 0, g = 0, b = 0},
+                    textColor = {r = 255, g = 255, b = 255},
+                    originIsCenter = true
+                })
+        end,
+        show = function(self)
+        end
+    })
+    startCutscene = engine.Scene.new({
+        name = "Start Cutscene",
+        init = function(self)
+            self._nextText = 1
+            self._texts = {
+                {{"Congratulations on making it into", "the National Spy Program. "}, 1},
+                {{"You have endured much to get here, and", "today you will be going on" ..
+                 " your first mission."}, 1},
+                {{"You are tasked with stealing the", "centerpiece item from a foreign museum."}, 1},
+                {{"It is of great important you get this", "item. Proceed with caution."}, 1},
+                {{"You leave the briefing room and head", "out on your mission."}, 0},
+                {{"Do you think he suspects anything?"}, 2},
+                {{"No. There is no way he will figure it out."}, 1},
+                {{"Controls for this game are:", "W - go up",
+                "S - go down",
+                "A - go left",
+                "D - go right",
+                "E - interact with things"}, 0}
+            }
+            self._textNames = {}
+            self._createTexts = function(self)
+                for i, name in ipairs(self._textNames) do
+                    local ent = self:getEntity(name)
+                    if ent then
+                        ent:kill()
+                    end
+                end
+                local figure = self:getEntity("Figure")
+                if figure then
+                    figure:kill()
+                end
+
+                local pair = self._texts[self._currentText]
+                if pair then
+                    if pair[2] == 0 then
+                        for i, text in ipairs(pair[1]) do
+                            table.insert(self._textNames, "Main text " .. self._nextText)
+                            self:createEntity("Text", "Main text " .. self._nextText,
+                                50, 50 + (i - 1) * 40, 0, 0, 5,
+                                {font = systemDialogFont, text = text,
+                                r = 255, g = 255, b = 255})
+                            self._nextText = self._nextText + 1
+                        end
+                    else
+                        self:createEntity("SimpleRenderer", "Figure",
+                            10, 50, 80, 80, 5, {texture = figures[pair[2]]})
+                        for i, text in ipairs(pair[1]) do
+                            table.insert(self._textNames, "Main text " .. self._nextText)
+                            self:createEntity("Text", "Main text " .. self._nextText,
+                                100, 50 + (i - 1) * 40, 0, 0, 5,
+                                {font = systemDialogFont, text = text,
+                                r = 255, g = 255, b = 255})
+                            self._nextText = self._nextText + 1
+                        end
+                    end
+                    self._currentText = self._currentText + 1
+                else
+                    engine.Scene.swap(gameScene)
+                end
+            end
+
+            local this = self
+            self:createEntity("GetInput", "InputCapture", 0, 0, 0, 0, 0,
+                {callback = function(event, pushed)
+                    if event.sym == sdl.KEY_E and pushed and not event.repeated then
+                        this:_createTexts()
+                    end
+                end})
+            self:createEntity("Text", "E to continue",
+                _width / 2, _height - 10, 0, 0, 5,
+                {useRectAsCenter = true, font = smallText, text = "Press E to continue.",
+                r = 255, g = 255, b = 255})
+        end,
+        show = function(self)
+            print("Lose show.")
+            self.triggersThatHaveBeenTriggered = {}
+            self.triggeredThisFrame = {}
+            renderer:setDrawColor(0, 0, 0)
+            camera.set(_width / 2, _height / 2)
+
+            self._currentText = 1
+            self:_createTexts()
+        end
+    })
+    loseCutscene = engine.Scene.new({
+        name = "Lose Cutscene",
+        init = function(self)
+            print("Lose init.")
+            self._nextText = 1
+            self._texts = {
+                {{"You have done well, doing axactly as", "we have asked."}, 1},
+                {{"You will be with us for a very, very", "long time as our loyal agent."}, 1},
+                {{"You win!"}, 0},
+                {{"... or did you? Explore the museum more", "to find out. There might be more to this",
+                "world beneath the surface than you might think."}, 0}
+            }
+            self._textNames = {}
+            self._createTexts = function(self)
+                for i, name in ipairs(self._textNames) do
+                    local ent = self:getEntity(name)
+                    if ent then
+                        ent:kill()
+                    end
+                end
+                local figure = self:getEntity("Figure")
+                if figure then
+                    figure:kill()
+                end
+
+                local pair = self._texts[self._currentText]
+                if pair then
+                    if pair[2] == 0 then
+                        for i, text in ipairs(pair[1]) do
+                            table.insert(self._textNames, "Main text " .. self._nextText)
+                            self:createEntity("Text", "Main text " .. self._nextText,
+                                50, 50 + (i - 1) * 40, 0, 0, 5,
+                                {font = systemDialogFont, text = text,
+                                r = 255, g = 255, b = 255})
+                            self._nextText = self._nextText + 1
+                        end
+                    else
+                        self:createEntity("SimpleRenderer", "Figure",
+                            10, 50, 80, 80, 5, {texture = figures[pair[2]]})
+                        for i, text in ipairs(pair[1]) do
+                            table.insert(self._textNames, "Main text " .. self._nextText)
+                            self:createEntity("Text", "Main text " .. self._nextText,
+                                100, 50 + (i - 1) * 40, 0, 0, 5,
+                                {font = systemDialogFont, text = text,
+                                r = 255, g = 255, b = 255})
+                            self._nextText = self._nextText + 1
+                        end
+                    end
+                    self._currentText = self._currentText + 1
+                else
+                    activations = {}
+                    buttonsPressed = {}
+                    engine.Scene.swap(menuScene)
+                end
+            end
+
+            local this = self
+            self:createEntity("GetInput", "InputCapture", 0, 0, 0, 0, 0,
+                {callback = function(event, pushed)
+                    if event.sym == sdl.KEY_E and pushed and not event.repeated then
+                        this:_createTexts()
+                    end
+                end})
+            self:createEntity("Text", "E to continue",
+                _width / 2, _height - 10, 0, 0, 5,
+                {useRectAsCenter = true, font = smallText, text = "Press E to continue.",
+                r = 255, g = 255, b = 255})
+        end,
+        show = function(self)
+            print("Lose show.")
+            self.triggersThatHaveBeenTriggered = {}
+            self.triggeredThisFrame = {}
+            renderer:setDrawColor(0, 0, 0)
+            camera.set(_width / 2, _height / 2)
+
+            self._currentText = 1
+            self:_createTexts()
+        end
+    })
+    winCutscene = engine.Scene.new({
+        name = "Lose Cutscene",
+        init = function(self)
+            print("Lose init.")
+            self._nextText = 1
+            self._texts = {
+                {{"What? How did you figure out we had you", "trapped in a simulation?! Impossible!"}, 1},
+                {{"You assured me he would not escape! You", "have severely disappointed me. Your",
+                "termination will be swift."}, 2},
+                {{"He's escaping the facility! Stop him!"}, 2},
+                {{"You win! You managed to see beneath the", "surface of the illusion world they made",
+                "for you and escape their nefarious", "clutches by findind the switches that would",
+                "grant your freedom. Congratulations!"}, 0}
+            }
+            self._textNames = {}
+            self._createTexts = function(self)
+                for i, name in ipairs(self._textNames) do
+                    local ent = self:getEntity(name)
+                    if ent then
+                        ent:kill()
+                    end
+                end
+                local figure = self:getEntity("Figure")
+                if figure then
+                    figure:kill()
+                end
+
+                local pair = self._texts[self._currentText]
+                if pair then
+                    if pair[2] == 0 then
+                        for i, text in ipairs(pair[1]) do
+                            table.insert(self._textNames, "Main text " .. self._nextText)
+                            self:createEntity("Text", "Main text " .. self._nextText,
+                                50, 50 + (i - 1) * 40, 0, 0, 5,
+                                {font = systemDialogFont, text = text,
+                                r = 255, g = 255, b = 255})
+                            self._nextText = self._nextText + 1
+                        end
+                    else
+                        self:createEntity("SimpleRenderer", "Figure",
+                            10, 50, 80, 80, 5, {texture = figures[pair[2]]})
+                        for i, text in ipairs(pair[1]) do
+                            table.insert(self._textNames, "Main text " .. self._nextText)
+                            self:createEntity("Text", "Main text " .. self._nextText,
+                                100, 50 + (i - 1) * 40, 0, 0, 5,
+                                {font = systemDialogFont, text = text,
+                                r = 255, g = 255, b = 255})
+                            self._nextText = self._nextText + 1
+                        end
+                    end
+                    self._currentText = self._currentText + 1
+                else
+                    activations = {}
+                    buttonsPressed = {}
+                    engine.Scene.swap(menuScene)
+                end
+            end
+
+            local this = self
+            self:createEntity("GetInput", "InputCapture", 0, 0, 0, 0, 0,
+                {callback = function(event, pushed)
+                    if event.sym == sdl.KEY_E and pushed and not event.repeated then
+                        this:_createTexts()
+                    end
+                end})
+            self:createEntity("Text", "E to continue",
+                _width / 2, _height - 10, 0, 0, 5,
+                {useRectAsCenter = true, font = smallText, text = "Press E to continue.",
+                r = 255, g = 255, b = 255})
+        end,
+        show = function(self)
+            print("Lose show.")
+            self.triggersThatHaveBeenTriggered = {}
+            self.triggeredThisFrame = {}
+            renderer:setDrawColor(0, 0, 0)
+            camera.set(_width / 2, _height / 2)
+
+            self._currentText = 1
+            self:_createTexts()
+        end
+    })
 
     gameScene = engine.Scene.new({
         name = "StartScreen",
@@ -1855,6 +2250,7 @@ function main()
             if level then
                 level:setLimits()
                 level:setCamera()
+                level:resetPlayer()
             end
         end
     })
@@ -1863,10 +2259,6 @@ function main()
         init = function(self)
             self.triggersThatHaveBeenTriggered = {}
             self.triggeredThisFrame = {}
-            local this = self
-            room1Settings.filename = "room1_fromstart.level"
-            self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
-                room1Settings)
             -- renderer:setDrawColor(255, 255, 255)
             self:createEntity("Cleanup", "Cleanup", 0, 0, 0, 0, 100)
         end,
@@ -1875,6 +2267,32 @@ function main()
             if level then
                 level:setLimits()
                 level:setCamera()
+                level:resetPlayer()
+            end
+
+            if activations.fakePainting == 4 then
+                local this = self
+                self:createEntity("Timer", "KillTriggereTimer", 0, 0, 0, 0, 0,
+                    {callback = function()
+                        if this:getEntity("Triggere") then
+                            this:getEntity("Triggere"):kill()
+                        end
+                    end, timeout = 0.1})
+            end
+
+            if not activations.fakePainting or not level then
+                activations.fakePainting = 1
+                self.triggersThatHaveBeenTriggered = {}
+                self.triggeredThisFrame = {}
+                room1Settings.filename = "room1_fromstart.level"
+                if self:getEntity("Level") then
+                    self:getEntity("Level"):kill()
+                end
+                if self:getEntity("Player") then
+                    self:getEntity("Player"):kill()
+                end
+                self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
+                    room1Settings)
             end
         end
     })
@@ -1883,10 +2301,6 @@ function main()
         init = function(self)
             self.triggersThatHaveBeenTriggered = {}
             self.triggeredThisFrame = {}
-            local this = self
-            room1Settings.filename = "room1_from3.level"
-            self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
-                room1Settings)
             -- renderer:setDrawColor(255, 255, 255)
             self:createEntity("Cleanup", "Cleanup", 0, 0, 0, 0, 100)
         end,
@@ -1895,6 +2309,32 @@ function main()
             if level then
                 level:setLimits()
                 level:setCamera()
+                level:resetPlayer()
+            end
+
+            if activations.fakePainting == 4 then
+                local this = self
+                self:createEntity("Timer", "KillTriggereTimer", 0, 0, 0, 0, 0,
+                    {callback = function()
+                        if this:getEntity("Triggere") then
+                            this:getEntity("Triggere"):kill()
+                        end
+                    end, timeout = 0.1})
+            end
+
+            if not activations.fakePainting or not level then
+                activations.fakePainting = 1
+                self.triggersThatHaveBeenTriggered = {}
+                self.triggeredThisFrame = {}
+                room1Settings.filename = "room1_from3.level"
+                if self:getEntity("Level") then
+                    self:getEntity("Level"):kill()
+                end
+                if self:getEntity("Player") then
+                    self:getEntity("Player"):kill()
+                end
+                self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
+                    room1Settings)
             end
         end
     })
@@ -1915,6 +2355,7 @@ function main()
             if level then
                 level:setLimits()
                 level:setCamera()
+                level:resetPlayer()
             end
         end
     })
@@ -1935,6 +2376,7 @@ function main()
             if level then
                 level:setLimits()
                 level:setCamera()
+                level:resetPlayer()
             end
         end
     })
@@ -1943,10 +2385,10 @@ function main()
         init = function(self)
             self.triggersThatHaveBeenTriggered = {}
             self.triggeredThisFrame = {}
-            local this = self
-            objectiveRoomSettings.filename = "objective_room_from2.level"
-            self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
-                objectiveRoomSettings)
+            -- local this = self
+            -- objectiveRoomSettings.filename = "objective_room_from2.level"
+            -- self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
+            --     objectiveRoomSettings)
             -- renderer:setDrawColor(255, 255, 255)
             self:createEntity("Cleanup", "Cleanup", 0, 0, 0, 0, 100)
         end,
@@ -1955,6 +2397,52 @@ function main()
             if level then
                 level:setLimits()
                 level:setCamera()
+                level:resetPlayer()
+            end
+
+            if not activations.gotTreasure or not level then
+                if not activations.gotTreasure then
+                    activations.gotTreasure = false
+                end
+                self.triggersThatHaveBeenTriggered = {}
+                self.triggeredThisFrame = {}
+                objectiveRoomSettings.filename = "objective_room_from2.level"
+                self:clearEntities()
+                -- if self:getEntity("Level") then
+                --     self:getEntity("Level"):kill()
+                -- end
+                -- if self:getEntity("Player") then
+                --     self:getEntity("Player"):kill()
+                -- end
+                self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
+                    objectiveRoomSettings)
+            end
+
+            if activations.gotTreasure then
+                local this = self
+                self:createEntity("Timer", "KillTriggerfTimer", 0, 0, 0, 0, 0,
+                    {callback = function()
+                        if this:getEntity("Triggerf") then
+                            local entf = this:getEntity("Triggerf")
+                            this:getEntity("Triggerf"):kill()
+                            getCurrentScene():createEntity("Trigger", "Trigger" .. 290853097320984329,
+                                entf._rect.x, entf._rect.y, entf._rect.w, entf._rect.h, playerLayer + 1,
+                                {
+                                    callback = function() end,
+                                    onUse = true,
+                                    solid = true,
+                                    texture = {
+                                        filename = "Objective2.png",
+                                        name = "main",
+                                        frames = 1,
+                                        width = tileSize,
+                                        height = tileSize,
+                                        start = {x = 0, y = 0},
+                                        animationTime = 100
+                                    }
+                                })
+                        end
+                    end, timeout = 0.1})
             end
         end
     })
@@ -1963,22 +2451,71 @@ function main()
         init = function(self)
             self.triggersThatHaveBeenTriggered = {}
             self.triggeredThisFrame = {}
-            local this = self
-            objectiveRoomSettings.filename = "objective_room_from3.level"
-            self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
-                objectiveRoomSettings)
+            -- local this = self
+            -- objectiveRoomSettings.filename = "objective_room_from3.level"
+            -- self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
+            --     objectiveRoomSettings)
             -- renderer:setDrawColor(255, 255, 255)
             self:createEntity("Cleanup", "Cleanup", 0, 0, 0, 0, 100)
         end,
         show = function(self)
+            self.triggersThatHaveBeenTriggered = {}
+            self.triggeredThisFrame = {}
+
             local level = self:getEntity("Level")
             if level then
                 level:setLimits()
                 level:setCamera()
+                level:resetPlayer()
+            end
+
+            if not activations.gotTreasure or not level then
+                if not activations.gotTreasure then
+                    activations.gotTreasure = false
+                end
+                self.triggersThatHaveBeenTriggered = {}
+                self.triggeredThisFrame = {}
+                objectiveRoomSettings.filename = "objective_room_from3.level"
+                -- if self:getEntity("Level") then
+                --     self:getEntity("Level"):kill()
+                -- end
+                -- if self:getEntity("Player") then
+                --     self:getEntity("Player"):kill()
+                -- end
+                self:clearEntities()
+                self:createEntity("Level", "Level", 0, 0, 0, 0, 0,
+                    objectiveRoomSettings)
+            end
+
+            if activations.gotTreasure then
+                local this = self
+                self:createEntity("Timer", "KillTriggerfTimer", 0, 0, 0, 0, 0,
+                    {callback = function()
+                        if this:getEntity("Triggerf") then
+                            local entf = this:getEntity("Triggerf")
+                            this:getEntity("Triggerf"):kill()
+                            getCurrentScene():createEntity("Trigger", "Trigger" .. 290853097320984329,
+                                entf._rect.x, entf._rect.y, entf._rect.w, entf._rect.h, playerLayer + 1,
+                                {
+                                    callback = function() end,
+                                    onUse = true,
+                                    solid = true,
+                                    texture = {
+                                        filename = "Objective2.png",
+                                        name = "main",
+                                        frames = 1,
+                                        width = tileSize,
+                                        height = tileSize,
+                                        start = {x = 0, y = 0},
+                                        animationTime = 100
+                                    }
+                                })
+                        end
+                    end, timeout = 0.1})
             end
         end
     })
-    engine.Scene.swap(gameScene)
+    engine.Scene.swap(menuScene)
 
     engine.startGameLoop(renderer, _tickTime)
 end
